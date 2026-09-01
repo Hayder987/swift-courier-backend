@@ -1,20 +1,21 @@
-import express, { Application, Request, Response } from "express";
+import express, { type Application, type Request, type Response } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { requestLogger } from "./app/middleware/requestLogger";
 import config from "./app/config";
 import httpStatus from "http-status";
+import { apiRateLimiter } from "./app/middleware/apiRateLimiter";
 
-
-const app:Application = express();
+const app: Application = express();
 
 // using helmet middleware
 app.use(
-  helmet({
-    crossOriginResourcePolicy: {
-      policy: "cross-origin",
-    },
-  }),
+	helmet({
+		crossOriginResourcePolicy: {
+			policy: "cross-origin",
+		},
+	}),
 );
 
 app.use(requestLogger);
@@ -26,6 +27,14 @@ app.use(
 	}),
 );
 
+// Enable URL-encoded form data parsing
+app.use(express.urlencoded({ extended: true }));
+// Middleware to parse JSON bodies
+app.use(express.json());
+app.use(cookieParser());
+
+//ip address wise global api call rate limit
+app.use("/api", apiRateLimiter);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
@@ -34,6 +43,5 @@ app.get("/", async (req: Request, res: Response) => {
 		message: "Welcome to Swift Courier Services",
 	});
 });
-
 
 export default app;
