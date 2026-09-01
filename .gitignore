@@ -15,3 +15,6 @@ yarn.lock
 package-lock.json
 pnpm-workspace.yaml
 .vscode
+.agents
+.claude
+.windsurf
