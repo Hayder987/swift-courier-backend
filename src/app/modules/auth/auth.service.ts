@@ -1,23 +1,13 @@
 import { prisma } from "../../lib/prisma";
+import { IRegisterPayload } from "./auth.validation";
 
 // create user as customer
-const registerCustomer = async (payload: any) => {
-    const {name, email, password, phone} = payload
-    const result = await prisma.user.create ({
-        
-        data :{
-            name, 
-            email,
-            password,
-            phone,
-            customer : {
-                create : {}
-            }
-            
-        },
-        
-    });
-    return result;
+const registerCustomer = async (payload:IRegisterPayload) => {
+    const {name, password, phone} = payload;
+    const email = payload.email.trim().toLowerCase();
+
+    const isUserExist =  
+    
 };
 
 // export auth services
