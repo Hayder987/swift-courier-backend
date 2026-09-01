@@ -5,9 +5,9 @@ model Customer {
   imageUrl         String?
   imagePublicId    String?
   timezone         String    @default("Asia/Dhaka")
-  permanentAddress   String
-  permanentCity      String
-  country          String @default("Bangladesh")
+  permanentAddress String
+  permanentCity    String
+  country          String    @default("Bangladesh")
   deletionDeadline DateTime?
   deletedAt        DateTime?
 

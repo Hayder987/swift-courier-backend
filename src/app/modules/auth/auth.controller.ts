@@ -7,12 +7,12 @@ import { authServices } from "./auth.service";
 const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
-	const result = await authServices.registerCustomer(payload);
+	 await authServices.registerCustomer(payload);
 
 	res.status(httpStatus.CREATED).json({
 		success: true,
-		message: "Operation successful",
-		data: result,
+		message: `Email Verification OTP send to Your ${payload?.email}`,
+		data: {},
 	});
 });
 

@@ -7,6 +7,7 @@ import config from "./app/config";
 import httpStatus from "http-status";
 import { apiRateLimiter } from "./app/middleware/apiRateLimiter";
 import router from "./app/routes";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -47,5 +48,9 @@ app.get("/", async (req: Request, res: Response) => {
 		message: "Welcome to Swift Courier Services",
 	});
 });
+
+
+// using global Error
+app.use(globalErrorHandler);
 
 export default app;

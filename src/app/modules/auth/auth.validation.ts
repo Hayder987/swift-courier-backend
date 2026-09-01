@@ -35,12 +35,27 @@ const registerZodSchema = z
         /^\+[1-9]\d{7,14}$/,
         "Phone number must be in valid international E.164 format, e.g. +8801771814597",
       ),
+
+    address: z
+      .object({
+        permanentAddress: z
+          .string()
+          .trim()
+          .min(5, "Permanent address must be at least 5 characters long")
+          .max(200, "Permanent address must not exceed 200 characters"),
+
+        permanentCity: z
+          .string()
+          .trim()
+          .min(2, "Permanent city must be at least 2 characters long")
+          .max(50, "Permanent city must not exceed 50 characters"),
+      })
+      .strict(),
   })
   .strict();
 
 export type IRegisterPayload = z.infer<typeof registerZodSchema>;
 
-// export zodSchema
 export const authValidation = {
   registerZodSchema,
 };
