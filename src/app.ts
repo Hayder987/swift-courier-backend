@@ -6,6 +6,7 @@ import { requestLogger } from "./app/middleware/requestLogger";
 import config from "./app/config";
 import httpStatus from "http-status";
 import { apiRateLimiter } from "./app/middleware/apiRateLimiter";
+import router from "./app/routes";
 
 const app: Application = express();
 
@@ -35,6 +36,9 @@ app.use(cookieParser());
 
 //ip address wise global api call rate limit
 app.use("/api", apiRateLimiter);
+
+// user module routes common
+app.use("/api/v1", router);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
