@@ -1,6 +1,24 @@
+model User {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+  email      String     @unique
+  password   String?
+  phone      String     @unique
+  googleId   String?    @unique
+  role       UserRole   @default(CUSTOMER)
+  authMethod AuthMethod @default(CREDENTIALS)
+  status     UserStatus @default(ACTIVE)
+  isEmployee Boolean    @default(false)
+  isDeleted  Boolean    @default(false)
 
-model User { 
-  id    String @default(uuid()) 
-  email String  @unique
-  name  String?
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  customer Customer?
+  employee Employee?
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
 }
