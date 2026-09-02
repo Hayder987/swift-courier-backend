@@ -2,10 +2,14 @@ import httpStatus from "http-status";
 import { AppError } from "../../utils/AppError";
 import type { IChangePassword } from "./user.interface";
 import { prisma } from "../../lib/prisma";
-import { AuthMethod } from "../../../generated/prisma/enums";
+import { AuthMethod, UserStatus } from "../../../generated/prisma/enums";
 import bcrypt from "bcryptjs";
 import { passwordHash } from "../../utils/comon.utils";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
+import sharp from "sharp";
+import { UploadApiResponse } from "cloudinary";
+import { cloudinary } from "../../lib/cloudinary";
+import { IReqUserPayload } from "../../interfaces";
 
 // change password own user
 const changePassword = async (payload: IChangePassword, userId: string) => {
@@ -142,8 +146,123 @@ const getMyProfile = async (userId: string) => {
 	return { user, profile };
 };
 
+// update user profile image
+const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
+	const currentUser = await prisma.user.findUnique({
+		where: {
+			id: user.id,
+		},
+		select: {
+			id: true,
+			isEmployee: true,
+			status: true,
+			role: true,
+			isDeleted: true,
+			employee: {
+				select: {
+					imageUrl: true,
+					imagePublicId: true,
+				},
+			},
+			customer: {
+				select: {
+					imageUrl: true,
+					imagePublicId: true,
+				},
+			},
+		},
+	});
+
+	if (!currentUser) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+	}
+
+	if (currentUser.role !== user.role) {
+		throw new AppError(httpStatus.FORBIDDEN, "FORBIDDEN: AccessDenied!");
+	}
+
+	if (currentUser.status !== UserStatus.ACTIVE || currentUser.isDeleted) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"User Not Active ! SUSPEND OR DELETED, Please Contact Us",
+		);
+	}
+
+	// Compress + resize image
+	const compressedBuffer = await sharp(buffer)
+		.rotate()
+		.resize({
+			width: 1200,
+			height: 1200,
+			fit: "inside",
+			withoutEnlargement: true,
+		})
+		.webp({
+			quality: 80,
+		})
+		.toBuffer();
+
+	// cloudinary upload
+	const cloudinaryResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+		cloudinary.uploader
+			.upload_stream(
+				{
+					resource_type: "auto",
+				},
+
+				async (error, result) => {
+					if (error) {
+						return reject(error);
+					}
+
+					if (!result) {
+						return reject(new Error("No result returned from Cloudinary"));
+					}
+
+					resolve(result);
+				},
+			)
+			.end(compressedBuffer);
+	});
+
+	let updateProfile = null;
+
+	if (currentUser.isEmployee) {
+		updateProfile = await prisma.employee.update({
+			where: {
+				userId: currentUser.id,
+			},
+			data: {
+				imageUrl: cloudinaryResult.secure_url,
+				imagePublicId: cloudinaryResult.public_id,
+			},
+		});
+
+		if (currentUser.employee?.imagePublicId && currentUser.employee?.imageUrl) {
+			await cloudinary.uploader.destroy(currentUser.employee.imagePublicId);
+		}
+	} else {
+		updateProfile = await prisma.customer.update({
+			where: {
+				userId: currentUser.id,
+			},
+			data: {
+				imageUrl: cloudinaryResult.secure_url,
+				imagePublicId: cloudinaryResult.public_id,
+			},
+		});
+
+		if (currentUser.customer?.imagePublicId && currentUser.customer?.imageUrl) {
+			await cloudinary.uploader.destroy(currentUser.customer.imagePublicId);
+		}
+	}
+
+	return updateProfile;
+};
+
 // export user services
 export const userServices = {
 	changePassword,
 	getMyProfile,
+	updateProfileImage,
 };

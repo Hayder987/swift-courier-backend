@@ -1,10 +1,10 @@
-import { JwtPayload } from "jsonwebtoken";
+import { IReqUserPayload } from "../interfaces";
 
 // express name space
 declare global {
 	namespace Express {
 		interface Request {
-			user?: JwtPayload;
+			user?: IReqUserPayload;
 		}
 	}
 }

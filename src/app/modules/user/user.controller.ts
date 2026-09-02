@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { userServices } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
+import { AppError } from "../../utils/AppError";
 
 // user change password
 const changePassword = catchAsync(async (req: Request, res: Response) => {
@@ -33,8 +34,31 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// update profile image
+const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
+	if (!req.file) {
+		throw new AppError(httpStatus.NOT_FOUND, "No File Provided.");
+	}
+
+	const user = req.user;
+
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User Not Found! Please Re-login");
+	}
+
+	const result = await userServices.updateProfileImage(req.file?.buffer, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Profile Image Upload && New tokens generated successfully",
+		data: result,
+	});
+});
+
 // export user controller
 export const userController = {
 	changePassword,
 	getMyProfile,
+	updateProfileImage,
 };
