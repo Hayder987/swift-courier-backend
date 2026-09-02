@@ -8,6 +8,7 @@ import httpStatus from "http-status";
 import { apiRateLimiter } from "./app/middleware/apiRateLimiter";
 import router from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
+import { notFound } from "./app/middleware/notFound";
 
 const app: Application = express();
 
@@ -51,5 +52,6 @@ app.get("/", async (req: Request, res: Response) => {
 
 // using global Error
 app.use(globalErrorHandler);
+app.use(notFound);
 
 export default app;
