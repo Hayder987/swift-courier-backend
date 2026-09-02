@@ -1,4 +1,4 @@
-import { UserRole } from "../../../generated/prisma/enums";
+import type { UserRole } from "../../../generated/prisma/enums";
 
 export interface IForgotPassword {
 	email: string;
@@ -16,12 +16,12 @@ export interface IResendOtp {
 }
 
 export interface ICreateAuthSessionParams {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    isEmailVerified: boolean;
-    isEmployee : boolean;
-  };
+	user: {
+		id: string;
+		name: string;
+		email: string;
+		role: UserRole;
+		isEmailVerified: boolean;
+		isEmployee: boolean;
+	};
 }
