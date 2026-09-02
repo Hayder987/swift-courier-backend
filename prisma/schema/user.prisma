@@ -16,9 +16,11 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  customer Customer?
-  employee Employee?
+  customer     Customer?
+  employee     Employee?
+  liveLocation LiveLocation?
 
+  @@index([id])
   @@index([role])
   @@index([status])
   @@map("users")

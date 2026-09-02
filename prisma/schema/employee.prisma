@@ -1,19 +1,24 @@
 model Employee {
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String    @unique @db.Uuid
-  employeeCode    String  @unique
-  bio           String?
-  imageUrl      String?
-  imagePublicId String?
+  id               String  @id @default(uuid()) @db.Uuid
+  userId           String  @unique @db.Uuid
+  employeeCode     String  @unique
+  imageUrl         String?
+  imagePublicId    String?
   permanentAddress String?
-  permanentCity String?
-  joinAt        DateTime?
-  additionalFiles    Json? 
-  leaveJobAt    DateTime?
-  suspendedAt   DateTime?
-  deletedAt     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  permanentCity    String?
+
+  realTimeLatitude  Decimal?  @db.Decimal(10, 7)
+  realTimeLongitude Decimal?  @db.Decimal(10, 7)
+  realTimeAddress   Json?
+  realTimeUpdatedAt DateTime?
+
+  joinAt          DateTime?
+  additionalFiles Json?
+  leaveJobAt      DateTime?
+  suspendedAt     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -1,3 +1,5 @@
+import config from "../config";
+
 interface NominatimAddress {
 	road?: string;
 	house_number?: string;
@@ -47,17 +49,18 @@ export const reverseGeocode = async (
 		throw new Error("Invalid latitude or longitude");
 	}
 
-	const url = new URL("https://nominatim.openstreetmap.org/reverse");
+	const url = new URL(`${config.openstreet_map_url}`);
 
 	url.searchParams.set("format", "jsonv2");
 	url.searchParams.set("lat", latitude.toString());
 	url.searchParams.set("lon", longitude.toString());
 	url.searchParams.set("addressdetails", "1");
 	url.searchParams.set("zoom", "18");
+	url.searchParams.set("accept-language", "en");
 
 	const response = await fetch(url, {
 		headers: {
-			"User-Agent": "SwiftCourier/1.0 (your-email@example.com)",
+			"User-Agent": "SwiftCourier/1.0 (swift_service@gamil.com.com)",
 			Accept: "application/json",
 		},
 	});
