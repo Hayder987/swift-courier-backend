@@ -11,7 +11,20 @@ const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 
 	res.status(httpStatus.CREATED).json({
 		success: true,
-		message: `Email Verification OTP send to Your ${payload?.email}`,
+		message: `Email Verification OTP send to Your ${payload?.email} Check Spam Folder`,
+		data: {},
+	});
+});
+
+// verify email
+const verifyEmail = catchAsync(async (req: Request, res: Response) => {
+	const payload = req.body;
+
+	await authServices.verifyEmail(payload);
+
+	res.status(httpStatus.CREATED).json({
+		success: true,
+		message: `user registration successfully`,
 		data: {},
 	});
 });
@@ -19,4 +32,5 @@ const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 // export auth controller
 export const authController = {
 	registerCustomer,
+	verifyEmail
 };

@@ -12,4 +12,11 @@ router.post(
   authController.registerCustomer,
 );
 
+// Verify Email
+router.post(
+	"/verify-email",
+	validateRequest(authValidation.verifyEmailZodSchema),
+	authController.verifyEmail,
+);
+
 export const authRoutes = router;

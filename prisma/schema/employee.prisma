@@ -4,7 +4,10 @@ model Employee {
   bio           String?
   imageUrl      String?
   imagePublicId String?
+  permanentAddress String?
+  permanentCity String?
   joinAt        DateTime?
+  additionalFiles    Json? 
   leaveJobAt    DateTime?
   suspendedAt   DateTime?
   deletedAt     DateTime?

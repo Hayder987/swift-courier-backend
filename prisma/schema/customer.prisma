@@ -5,8 +5,6 @@ model Customer {
   imageUrl         String?
   imagePublicId    String?
   timezone         String    @default("Asia/Dhaka")
-  permanentAddress String
-  permanentCity    String
   country          String    @default("Bangladesh")
   deletionDeadline DateTime?
   deletedAt        DateTime?
@@ -17,6 +15,5 @@ model Customer {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([permanentCity])
   @@map("customers")
 }

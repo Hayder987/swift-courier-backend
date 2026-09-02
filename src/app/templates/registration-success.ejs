@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Welcome to SwiftCourier</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f5f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #171717;
+      }
+
+      .wrapper {
+        width: 100%;
+        padding: 48px 16px;
+        box-sizing: border-box;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 540px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e7e7e7;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .header {
+        padding: 30px 36px;
+        text-align: center;
+        border-bottom: 1px solid #eeeeee;
+      }
+
+      .logo {
+        display: inline-block;
+        font-size: 27px;
+        font-weight: 700;
+        letter-spacing: -0.8px;
+        color: #e50914;
+      }
+
+      .brand-dot {
+        color: #111111;
+      }
+
+      .content {
+        padding: 44px 36px 40px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #e50914;
+      }
+
+      .title {
+        margin: 0 0 14px;
+        text-align: center;
+        font-size: 26px;
+        line-height: 1.25;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #111111;
+      }
+
+      .description {
+        max-width: 430px;
+        margin: 0 auto 30px;
+        text-align: center;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #737373;
+      }
+
+      .user-card {
+        margin-bottom: 24px;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #fafafa;
+        border: 1px solid #eeeeee;
+      }
+
+      .user-card-title {
+        margin: 0 0 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #404040;
+      }
+
+      .info-row {
+        padding: 9px 0;
+        border-bottom: 1px solid #eeeeee;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .info-label {
+        display: inline-block;
+        width: 90px;
+        color: #737373;
+      }
+
+      .info-value {
+        color: #262626;
+        font-weight: 600;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background-color: #fef2f2;
+        color: #e50914;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      .deadline-box {
+        margin-bottom: 24px;
+        padding: 16px 18px;
+        border-radius: 10px;
+        background-color: #fff5f5;
+        border: 1px solid #fecaca;
+      }
+
+      .deadline-title {
+        margin: 0 0 5px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #991b1b;
+      }
+
+      .deadline-text {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #737373;
+      }
+
+      .security-note {
+        padding: 16px 18px;
+        border-radius: 10px;
+        background-color: #fafafa;
+        border: 1px solid #eeeeee;
+      }
+
+      .security-title {
+        margin: 0 0 5px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #404040;
+      }
+
+      .security-text {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #737373;
+      }
+
+      .footer {
+        padding: 24px 30px 28px;
+        text-align: center;
+        border-top: 1px solid #eeeeee;
+        background-color: #fcfcfc;
+      }
+
+      .footer p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #a3a3a3;
+      }
+
+      .footer .copyright {
+        margin-top: 6px;
+      }
+
+      @media only screen and (max-width: 480px) {
+        .wrapper {
+          padding: 24px 10px;
+        }
+
+        .header {
+          padding: 26px 20px;
+        }
+
+        .content {
+          padding: 36px 20px 32px;
+        }
+
+        .footer {
+          padding: 22px 18px 24px;
+        }
+
+        .title {
+          font-size: 23px;
+        }
+
+        .description {
+          font-size: 14px;
+        }
+
+        .user-card {
+          padding: 16px;
+        }
+
+        .info-label {
+          width: 75px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+          <div class="logo">
+            SwiftCourier<span class="brand-dot">.</span>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+
+          <p class="eyebrow">Registration successful</p>
+
+          <h1 class="title">
+            Welcome to SwiftCourier
+          </h1>
+
+          <p class="description">
+            Hi <strong><%= name %></strong>, your SwiftCourier account has
+            been successfully created. We're excited to have you with us.
+          </p>
+
+          <!-- Account Information -->
+          <div class="user-card">
+
+            <p class="user-card-title">
+              Account information
+            </p>
+
+            <div class="info-row">
+              <span class="info-label">Name</span>
+              <span class="info-value">
+                <%= name %>
+              </span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">
+                <%= email %>
+              </span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Role</span>
+              <span class="info-value">
+                <%= role %>
+              </span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Status</span>
+              <span class="status">
+                <%= status %>
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Deletion Deadline -->
+          <% if (deletionDeadline) { %>
+            <div class="deadline-box">
+
+              <p class="deadline-title">
+                Account setup reminder
+              </p>
+
+              <p class="deadline-text">
+                Please complete your account setup before
+                <strong>
+                  <%= new Date(deletionDeadline).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  }) %>
+                </strong>.
+                If your account remains incomplete until this deadline,
+                it may be automatically removed.
+              </p>
+
+            </div>
+          <% } %>
+
+          <!-- Security Note -->
+          <div class="security-note">
+
+            <p class="security-title">
+              Security notice
+            </p>
+
+            <p class="security-text">
+              If you did not create this account, please contact SwiftCourier
+              support immediately. Never share your password, verification
+              codes, or authentication credentials with anyone.
+            </p>
+
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+
+          <p>
+            This is an automated message from SwiftCourier.
+            Please do not reply to this email.
+          </p>
+
+          <p class="copyright">
+            &copy; <%= new Date().getFullYear() %>
+            SwiftCourier. All rights reserved.
+          </p>
+
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
