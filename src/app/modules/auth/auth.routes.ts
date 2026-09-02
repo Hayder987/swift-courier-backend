@@ -19,4 +19,18 @@ router.post(
 	authController.verifyEmail,
 );
 
+// Forgot Password
+router.post(
+	"/forgot-password",
+	validateRequest(authValidation.forgotPasswordZodSchema),
+	authController.forgotPassword,
+);
+
+// Reset Password
+router.post(
+	"/reset-password",
+	validateRequest(authValidation.ResetPasswordZodSchema),
+	authController.resetPassword,
+);
+
 export const authRoutes = router;

@@ -5,7 +5,14 @@ import { IRegisterPayload, IVerifyEmailPayload } from "./auth.validation";
 import { createOtp, passwordHash, setRedisOtp } from "../../utils/comon.utils";
 import { redisClient } from "../../lib/redis";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
-import { AuthMethod, UserRole, UserStatus } from "../../../generated/prisma/enums";
+import {
+  AuthMethod,
+  UserRole,
+  UserStatus,
+} from "../../../generated/prisma/enums";
+import { IForgotPassword, IResetPassword } from "./auth.interface";
+import bcrypt from "bcryptjs";
+import config from "../../config";
 
 // create user as customer
 const registerCustomer = async (payload: IRegisterPayload) => {
@@ -76,7 +83,6 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
     );
   }
 
-
   if (redisOtp !== otp) {
     throw new AppError(httpStatus.BAD_REQUEST, "OTP does not match");
   }
@@ -107,11 +113,17 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
     }
 
     if (isUserExist.status === UserStatus.SUSPENDED) {
-      throw new AppError(httpStatus.FORBIDDEN, "Your account is suspended Please Contact Us");
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Your account is suspended Please Contact Us",
+      );
     }
 
     if (isUserExist.status === UserStatus.DELETED) {
-      throw new AppError(httpStatus.FORBIDDEN, "Your account is deleted Please Contact Us");
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Your account is deleted Please Contact Us",
+      );
     }
 
     if (!isUserExist.password) {
@@ -131,17 +143,17 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
       name: registrationData.name,
       email: registrationData.email,
       password: registrationData.password,
-      phone : registrationData.phone,
+      phone: registrationData.phone,
       role: UserRole.CUSTOMER,
       status: UserStatus.ACTIVE,
       isEmailVerified: true,
       authMethod: AuthMethod.CREDENTIALS,
 
-      customer : {
-        create :{
-        deletionDeadline:deletionDeadline,  
-        }
-      }
+      customer: {
+        create: {
+          deletionDeadline: deletionDeadline,
+        },
+      },
     },
 
     select: {
@@ -150,11 +162,11 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
       email: true,
       role: true,
       status: true,
-      customer : {
-        select :{
-            deletionDeadline : true
-        }
-      }
+      customer: {
+        select: {
+          deletionDeadline: true,
+        },
+      },
     },
   });
 
@@ -174,8 +186,121 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
   });
 };
 
+// forgot password
+const forgotPassword = async (payload: IForgotPassword) => {
+  const { email } = payload;
+
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+  }
+
+  if (isUserExist.status !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Your account is suspended or blocked. Please contact support",
+    );
+  }
+
+  if (!isUserExist.isEmailVerified) {
+    throw new AppError(httpStatus.FORBIDDEN, "User email is not verified");
+  }
+
+  const otp = createOtp();
+
+  const key = `forgot-password-otp:${isUserExist.email}`;
+
+  await setRedisOtp(key, otp);
+
+  await sendTemplateEmail({
+    to: isUserExist.email,
+    subject: "Forgot Password OTP",
+    templateName: "otp-verification",
+    data: {
+      otp,
+      expirationMinutes: 5,
+    },
+  });
+};
+
+// reset password
+const resetPassword = async (payload: IResetPassword) => {
+	const { email, otp, newPassword } = payload;
+
+	const isUserExist = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	if (!isUserExist) {
+		throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+	}
+
+	if (isUserExist.status !== UserStatus.ACTIVE) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Your account is suspended or blocked. Please contact support",
+		);
+	}
+
+	if (!isUserExist.isEmailVerified) {
+		throw new AppError(httpStatus.FORBIDDEN, "User email is not verified");
+	}
+
+	const key = `forgot-password-otp:${isUserExist.email}`;
+
+	const redisOtp = await redisClient.get(key);
+
+	if (!redisOtp) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Invalid OTP or OTP has expired",
+		);
+	}
+
+	if (redisOtp !== otp) {
+		throw new AppError(httpStatus.BAD_REQUEST, "OTP does not match");
+	}
+
+	const hashedNewPassword = await bcrypt.hash(
+		newPassword,
+		Number(config.bcrypt_salt_rounds),
+	);
+
+	await prisma.user.update({
+		where: {
+			email: isUserExist.email,
+		},
+
+		data: {
+			password: hashedNewPassword,
+		},
+	});
+
+	await redisClient.del([key]);
+
+	await sendTemplateEmail({
+		to: isUserExist.email,
+		subject: "Password Reset Successfully!!!",
+		templateName: "reset-password-success",
+		data: {
+			name: isUserExist.name,
+			info: false,
+		},
+	});
+};
+
+
 // export auth services
 export const authServices = {
   registerCustomer,
-  verifyEmail
+  verifyEmail,
+  forgotPassword,
+  resetPassword
 };
