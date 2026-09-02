@@ -21,4 +21,17 @@ router.patch(
 	userController.changePassword,
 );
 
+// get my profile
+router.get(
+	"/me",
+	auth(
+		UserRole.CUSTOMER,
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.OPERATION_MANAGER,
+		UserRole.COURIER,
+	),
+	userController.getMyProfile,
+);
+
 export const userRoutes = router;

@@ -92,6 +92,58 @@ const changePassword = async (payload: IChangePassword, userId: string) => {
 	});
 };
 
+// get my profile
+const getMyProfile = async (userId: string) => {
+	if (!userId) {
+		throw new AppError(httpStatus.UNAUTHORIZED, "Authentication required. Please log in again.");
+	}
+
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			phone: true,
+			authMethod: true,
+			isEmailVerified: true,
+			isEmployee: true,
+			role: true,
+			status: true,
+			lastLoginAt: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+	}
+
+	let profile = null;
+
+	if (user.isEmployee) {
+		profile = await prisma.employee.findUnique({
+			where: {
+				userId: user.id,
+			},
+		});
+	} else {
+		profile = await prisma.customer.findUnique({
+			where: {
+				userId: user.id,
+			},
+		});
+	}
+
+	return { user, profile };
+};
+
+// export user services
 export const userServices = {
 	changePassword,
+	getMyProfile,
 };
