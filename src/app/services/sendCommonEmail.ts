@@ -2,18 +2,18 @@ import config from "../config";
 import { transporter } from "../lib/nodemailer";
 
 interface IEmailPayload {
-  to: string;
-  subject: string;
-  data: string;
+	to: string;
+	subject: string;
+	data: string;
 }
 
 export const sendCommonEmail = async (payload: IEmailPayload) => {
-  await transporter.sendMail({
-    from: `"SwiftCourier" <${config.email_sender}>`,
-    to: payload.to,
-    subject: payload.subject,
-    html: payload.data,
-  });
+	await transporter.sendMail({
+		from: `"SwiftCourier" <${config.email_sender}>`,
+		to: payload.to,
+		subject: payload.subject,
+		html: payload.data,
+	});
 };
 
 // export const sendCommonEmail = async (payload: IEmailPayload) => {

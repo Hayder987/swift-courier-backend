@@ -7,9 +7,9 @@ const router = Router();
 
 // register customer public
 router.post(
-  "/sign-up",
-  validateRequest(authValidation.registerZodSchema),
-  authController.registerCustomer,
+	"/sign-up",
+	validateRequest(authValidation.registerZodSchema),
+	authController.registerCustomer,
 );
 
 // Verify Email
@@ -31,6 +31,13 @@ router.post(
 	"/reset-password",
 	validateRequest(authValidation.ResetPasswordZodSchema),
 	authController.resetPassword,
+);
+
+// Resend Verification OTP
+router.post(
+	"/resend-otp",
+	validateRequest(authValidation.resendOtpZodSchema),
+	authController.resendOtp,
 );
 
 export const authRoutes = router;

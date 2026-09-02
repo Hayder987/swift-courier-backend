@@ -1,4 +1,3 @@
-
 import type { ErrorRequestHandler } from "express";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
@@ -32,13 +31,8 @@ const getPrismaTarget = (error: Prisma.PrismaClientKnownRequestError) => {
 	return undefined;
 };
 
-export const globalErrorHandler: ErrorRequestHandler = (
-	err,
-	req,
-	res,
-	_next,
-) => {
-	let statusCode : number = httpStatus.INTERNAL_SERVER_ERROR;
+export const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+	let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
 	let message = "Something went wrong";
 	let errors: ErrorDetail[] = [];
 	let errorName = "InternalServerError";
@@ -55,7 +49,6 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	}
 
 	// Zod Validation Error
-
 	else if (err instanceof ZodError) {
 		statusCode = httpStatus.BAD_REQUEST;
 		message = "Validation failed";
@@ -64,9 +57,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
 		errors = getZodErrors(err);
 	}
 
-
 	// Prisma Validation Error
-
 	else if (err instanceof Prisma.PrismaClientValidationError) {
 		statusCode = httpStatus.BAD_REQUEST;
 		message = "Invalid data provided";
@@ -74,7 +65,6 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	}
 
 	// Prisma Known Request Error-------------------------->
-
 	else if (err instanceof Prisma.PrismaClientKnownRequestError) {
 		errorName = "PrismaClientKnownRequestError";
 
@@ -135,7 +125,6 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	}
 
 	// Prisma Initialization Error---------------------------->
-
 	else if (err instanceof Prisma.PrismaClientInitializationError) {
 		statusCode = httpStatus.SERVICE_UNAVAILABLE;
 		errorName = "PrismaClientInitializationError";
@@ -158,18 +147,14 @@ export const globalErrorHandler: ErrorRequestHandler = (
 		}
 	}
 
-	
 	// Prisma Unknown Request Error------------------------------->
-	
 	else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
 		statusCode = httpStatus.INTERNAL_SERVER_ERROR;
 		message = "An unexpected database error occurred.";
 		errorName = "PrismaClientUnknownRequestError";
 	}
 
-
 	// Prisma Rust Panic Error----------------------------------->
-
 	else if (err instanceof Prisma.PrismaClientRustPanicError) {
 		statusCode = httpStatus.INTERNAL_SERVER_ERROR;
 		message = "An unexpected database error occurred.";
@@ -177,35 +162,24 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	}
 
 	// JWT Errors---------------------------------------->
-
-
 	else if (err instanceof jwt.TokenExpiredError) {
 		statusCode = httpStatus.UNAUTHORIZED;
 		message = "Authentication token has expired.";
 		errorName = "TokenExpiredError";
-	}
-
-	else if (err instanceof jwt.JsonWebTokenError) {
+	} else if (err instanceof jwt.JsonWebTokenError) {
 		statusCode = httpStatus.UNAUTHORIZED;
 		message = "Invalid authentication token.";
 		errorName = "JsonWebTokenError";
 	}
 
-
 	// JSON Body Parser Error----------------------------->
-	
-	else if (
-		err instanceof SyntaxError &&
-		"body" in err
-	) {
+	else if (err instanceof SyntaxError && "body" in err) {
 		statusCode = httpStatus.BAD_REQUEST;
 		message = "Invalid JSON payload.";
 		errorName = "SyntaxError";
 	}
 
-	
 	// Normal JavaScript Error------------------------------>
-
 	else if (err instanceof Error) {
 		statusCode = httpStatus.INTERNAL_SERVER_ERROR;
 		message = err.message || "Something went wrong";
@@ -213,13 +187,11 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	}
 
 	// Unknown / Non-Error Throwable------------------------>
-
 	else {
 		statusCode = httpStatus.INTERNAL_SERVER_ERROR;
 		message = "Something went wrong";
 		errorName = "UnknownError";
 	}
-
 
 	// Production Safety-------------------------------->
 
@@ -232,10 +204,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
 	 * Detailed information is logged instead.
 	 */
 
-	if (
-		statusCode >= httpStatus.INTERNAL_SERVER_ERROR &&
-		!isDevelopment
-	) {
+	if (statusCode >= httpStatus.INTERNAL_SERVER_ERROR && !isDevelopment) {
 		message = "Something went wrong";
 		errors = [];
 	}
@@ -262,7 +231,6 @@ export const globalErrorHandler: ErrorRequestHandler = (
 		}),
 	});
 
-
 	// Response------------------------------>
 
 	return res.status(statusCode).json({
@@ -271,4 +239,3 @@ export const globalErrorHandler: ErrorRequestHandler = (
 		errors,
 	});
 };
-

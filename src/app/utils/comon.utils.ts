@@ -3,7 +3,6 @@ import config from "../config";
 import crypto from "crypto";
 import { redisClient } from "../lib/redis";
 
-
 // password hash
 export const passwordHash = async (password: string) => {
 	return await bcrypt.hash(password, Number(config.bcrypt_salt_rounds));

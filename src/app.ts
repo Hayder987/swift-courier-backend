@@ -49,7 +49,6 @@ app.get("/", async (req: Request, res: Response) => {
 	});
 });
 
-
 // using global Error
 app.use(globalErrorHandler);
 
