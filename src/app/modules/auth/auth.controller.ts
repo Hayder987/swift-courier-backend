@@ -3,7 +3,6 @@ import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { authServices } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
-import config from "../../config";
 import { authUtils } from "./auth.utils";
 
 // register user as customer
@@ -134,7 +133,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 	sendResponse(res, {
 		success: true,
-		statusCode: httpStatus.OK,
+		statusCode: httpStatus.CREATED,
 		message: "New accessToken Generated Successfully!",
 		data: { accessToken, refreshToken, user },
 	});

@@ -102,6 +102,7 @@ export const googleLoginZodSchema = z.object({
 	idToken: z.string().trim().min(1, "Google ID token is required"),
 });
 
+// google login payload
 export type IGoogleLoginPayload = z.infer<typeof googleLoginZodSchema>;
 
 export const authValidation = {
