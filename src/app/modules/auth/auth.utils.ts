@@ -1,0 +1,74 @@
+import type { SignOptions } from "jsonwebtoken";
+import config from "../../config";
+import { jwtUtils } from "../../utils/jwt";
+import { ICreateAuthSessionParams } from "./auth.interface";
+import { Response } from "express";
+
+interface ITokenPayload {
+  accessToken: string;
+  refreshToken: string;
+}
+
+const createAuthSession = async ({ user }: ICreateAuthSessionParams) => {
+  // JWT Payload
+  const jwtPayload = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    isEmailVerified: user.isEmailVerified,
+    isEmployee: user.isEmployee,
+  };
+
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in as SignOptions,
+  );
+
+  const refreshToken = jwtUtils.createToken(
+    jwtPayload,
+    config.jwt_refresh_secret,
+    config.jwt_refresh_expires_in as SignOptions,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      isEmployee: user.isEmployee,
+    },
+  };
+};
+
+const setCookieResponse = async (
+  res: Response,
+  tokenPayload: ITokenPayload,
+) => {
+  const { accessToken, refreshToken } = tokenPayload;
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
+};
+
+export const authUtils = {
+  createAuthSession,
+  setCookieResponse,
+};

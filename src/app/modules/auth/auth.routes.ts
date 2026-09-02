@@ -40,4 +40,11 @@ router.post(
 	authController.resendOtp,
 );
 
+// Login
+router.post(
+	"/login",
+	validateRequest(authValidation.loginUserAuthZodSchema),
+	authController.loginUser,
+);
+
 export const authRoutes = router;
