@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
+  IGoogleLoginPayload,
   ILoginUserPayload,
   IRegisterPayload,
   IVerifyEmailPayload,
@@ -20,10 +21,10 @@ import type {
   IResetPassword,
 } from "./auth.interface";
 import bcrypt from "bcryptjs";
-import config from "../../config";
-import { jwtUtils } from "../../utils/jwt";
-import { SignOptions } from "jsonwebtoken";
 import { authUtils } from "./auth.utils";
+import { TokenPayload } from "google-auth-library";
+import { googleClient } from "../../lib/googleAuth";
+import config from "../../config";
 
 // create user as customer
 const registerCustomer = async (payload: IRegisterPayload) => {
@@ -33,9 +34,12 @@ const registerCustomer = async (payload: IRegisterPayload) => {
   const isUserExist = await prisma.user.findUnique({
     where: {
       email,
-      phone,
     },
   });
+
+  if (isUserExist?.phone && isUserExist.phone === phone) {
+    throw new AppError(httpStatus.CONFLICT, "This Phone Number Already Use");
+  }
 
   if (isUserExist) {
     throw new AppError(
@@ -147,7 +151,6 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
   }
 
   const now = new Date();
-
   const deletionDeadline = new Date(now.getTime() + 360 * 60 * 60 * 1000); // 15 days
 
   const user = await prisma.user.create({
@@ -431,7 +434,158 @@ const loginUser = async (payload: ILoginUserPayload) => {
     },
   });
 
-  const authSession = await authUtils.createAuthSession({user})
+  const authSession = await authUtils.createAuthSession({ user });
+  return authSession;
+};
+
+
+// google login
+const googleLogin = async (payload: IGoogleLoginPayload) => {
+  let googleIdTokenPayload: TokenPayload | null | undefined = null;
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: payload.idToken,
+      audience: config.google_client_id,
+    });
+
+    googleIdTokenPayload = ticket.getPayload();
+  } catch (error) {
+    console.error("Google ID Token Verification Failed:", error);
+
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid Or Expired Google ID Token",
+    );
+  }
+
+  if (!googleIdTokenPayload) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid Or Expired Google ID Token",
+    );
+  }
+
+  if (!googleIdTokenPayload.sub) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Google User ID Not Found");
+  }
+
+  if (!googleIdTokenPayload.email) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Google Email Not Found");
+  }
+
+  if (!googleIdTokenPayload.name) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Google User Name Not Found");
+  }
+
+  if (!googleIdTokenPayload.email_verified) {
+    throw new AppError(httpStatus.FORBIDDEN, "Google Email Is Not Verified");
+  }
+
+  const googleId = googleIdTokenPayload.sub;
+  const email = googleIdTokenPayload.email;
+  const name = googleIdTokenPayload.name;
+
+ 
+  // 3. Find Existing Google User
+  const existingGoogleUser = await prisma.user.findFirst({
+    where: {
+      email,
+      role: UserRole.CUSTOMER,
+      googleId,
+    },
+  });
+
+  let user = existingGoogleUser;
+
+  if (!existingGoogleUser) {
+    const existingCredentialsUser = await prisma.user.findFirst({
+      where: {
+        email,
+        role: UserRole.CUSTOMER,
+        authMethod: AuthMethod.CREDENTIALS,
+      },
+    });
+
+    if (existingCredentialsUser) {
+      if (!existingCredentialsUser.isEmailVerified) {
+        throw new AppError(httpStatus.FORBIDDEN, "Email Not Verified");
+      }
+
+      if (existingCredentialsUser.status !== UserStatus.ACTIVE) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "User Suspended Or Deleted. Please Contact Us",
+        );
+      }
+
+      user = await prisma.user.update({
+        where: {
+          id: existingCredentialsUser.id,
+        },
+        data: {
+          googleId,
+        },
+      });
+    } else {
+      const deletionDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          googleId,
+          role: UserRole.CUSTOMER,
+          status: UserStatus.ACTIVE,
+          isEmailVerified: true,
+          authMethod: AuthMethod.GOOGLE,
+          customer: { create: { deletionDeadline } },
+        },
+      });
+      // --------------------------------------------------------
+      // Registration Success Email
+      // --------------------------------------------------------
+
+      const templateData = {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        deletionDeadline,
+      };
+
+      await sendTemplateEmail({
+        to: user.email,
+        subject: "Welcome to SwiftCourier — Registration Successful",
+        templateName: "registration-success",
+        data: templateData,
+      });
+    }
+  }
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
+  }
+
+  if (user.status !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "User Suspended Or Deleted. Please Contact Us",
+    );
+  }
+
+  user = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      lastLoginAt: new Date(),
+    },
+  });
+
+  const authSession = await authUtils.createAuthSession({
+    user,
+  });
+
   return authSession;
 };
 
@@ -443,6 +597,5 @@ export const authServices = {
   resetPassword,
   resendOtp,
   loginUser,
+  googleLogin,
 };
-
-

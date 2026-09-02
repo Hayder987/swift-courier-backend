@@ -15,7 +15,6 @@ const createAuthSession = async ({ user }: ICreateAuthSessionParams) => {
     id: user.id,
     name: user.name,
     email: user.email,
-    phone: user.phone,
     role: user.role,
     isEmailVerified: user.isEmailVerified,
     isEmployee: user.isEmployee,

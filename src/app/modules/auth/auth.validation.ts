@@ -98,11 +98,21 @@ const loginUserAuthZodSchema = z.object({
 
 export type ILoginUserPayload = z.infer<typeof loginUserAuthZodSchema>;
 
+export const googleLoginZodSchema = z.object({
+  idToken: z
+    .string()
+    .trim()
+    .min(1, "Google ID token is required"),
+});
+
+export type IGoogleLoginPayload = z.infer<typeof googleLoginZodSchema>;
+
 export const authValidation = {
 	registerZodSchema,
 	verifyEmailZodSchema,
 	forgotPasswordZodSchema,
 	ResetPasswordZodSchema,
 	resendOtpZodSchema,
-  loginUserAuthZodSchema
+  loginUserAuthZodSchema,
+  googleLoginZodSchema,
 };

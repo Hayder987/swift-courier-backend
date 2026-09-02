@@ -20,7 +20,6 @@ export interface ICreateAuthSessionParams {
     id: string;
     name: string;
     email: string;
-    phone : string,
     role: UserRole;
     isEmailVerified: boolean;
     isEmployee : boolean;

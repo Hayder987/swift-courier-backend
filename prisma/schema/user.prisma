@@ -3,7 +3,7 @@ model User {
   name            String
   email           String     @unique
   password        String?
-  phone           String     @unique
+  phone           String?    @unique
   googleId        String?    @unique
   role            UserRole   @default(CUSTOMER)
   authMethod      AuthMethod @default(CREDENTIALS)

@@ -96,6 +96,26 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// google login
+const googleLogin = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  const result = await authServices.googleLogin(payload);
+  const { accessToken, refreshToken, user } = result;
+
+  await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Google Auth login successful",
+    data: {
+	  accessToken,
+      user,
+    },
+  });
+});
+
 // export auth controllerS
 export const authController = {
   registerCustomer,
@@ -104,4 +124,5 @@ export const authController = {
   resetPassword,
   resendOtp,
   loginUser,
+  googleLogin
 };
