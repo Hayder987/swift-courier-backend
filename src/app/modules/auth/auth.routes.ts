@@ -50,4 +50,10 @@ router.post(
 // Google Login
 router.post("/google", authController.googleLogin);
 
+// refresh token
+router.post("/refresh-token", authController.refreshToken);
+
+// logout
+router.post("/logout", authController.logout);
+
 export const authRoutes = router;

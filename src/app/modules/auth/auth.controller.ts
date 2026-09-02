@@ -97,6 +97,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 		message: "User logged in successfully",
 		data: {
 			accessToken,
+			refreshToken,
 			user,
 		},
 	});
@@ -117,8 +118,47 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 		message: "Google Auth login successful",
 		data: {
 			accessToken,
+			refreshToken,
 			user,
 		},
+	});
+});
+
+// refresh token
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+	const token = req.cookies.refreshToken;
+
+	const { accessToken, refreshToken, user } = await authServices.refreshTokenToAccess(token);
+
+	await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatus.OK,
+		message: "New accessToken Generated Successfully!",
+		data: { accessToken, refreshToken, user },
+	});
+});
+
+//logout
+const logout = catchAsync(async (_req: Request, res: Response) => {
+	res.clearCookie("accessToken", {
+		httpOnly: true,
+		secure: false,
+		sameSite: "lax",
+	});
+
+	res.clearCookie("refreshToken", {
+		httpOnly: true,
+		secure: false,
+		sameSite: "lax",
+	});
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Logout Successful",
+		data: null,
 	});
 });
 
@@ -131,4 +171,6 @@ export const authController = {
 	resendOtp,
 	loginUser,
 	googleLogin,
+	refreshToken,
+	logout,
 };

@@ -17,6 +17,8 @@ import { authUtils } from "./auth.utils";
 import type { TokenPayload } from "google-auth-library";
 import { googleClient } from "../../lib/googleAuth";
 import config from "../../config";
+import { jwtUtils } from "../../utils/jwt";
+import type { JwtPayload } from "jsonwebtoken";
 
 // create user as customer
 const registerCustomer = async (payload: IRegisterPayload) => {
@@ -545,6 +547,41 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 	return authSession;
 };
 
+// refresh token to accessToken
+const refreshTokenToAccess = async (refreshToken: string) => {
+	if (!refreshToken) {
+		throw new AppError(httpStatus.NOT_FOUND, "refreshToken Not Found");
+	}
+
+	const decodedRefreshToken = jwtUtils.verifyToken(refreshToken, config.jwt_refresh_secret);
+
+	if (!decodedRefreshToken.success || !decodedRefreshToken.data) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			config.node_env === "development" ? decodedRefreshToken.error : "Invalid refresh token",
+		);
+	}
+
+	const { id } = decodedRefreshToken.data as JwtPayload;
+
+	const user = await prisma.user.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	});
+
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
+	}
+
+	if (!user || user.isDeleted || user.status !== UserStatus.ACTIVE) {
+		throw new AppError(httpStatus.UNAUTHORIZED, "User is Suspend Or Deleted");
+	}
+
+	const authSession = await authUtils.createAuthSession({ user });
+	return authSession;
+};
+
 // export auth services
 export const authServices = {
 	registerCustomer,
@@ -554,4 +591,5 @@ export const authServices = {
 	resendOtp,
 	loginUser,
 	googleLogin,
+	refreshTokenToAccess,
 };
