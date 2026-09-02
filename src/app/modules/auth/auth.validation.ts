@@ -78,10 +78,31 @@ const resendOtpZodSchema = z.object({
 	emailVerifyOtp: z.boolean(),
 });
 
+const loginUserAuthZodSchema = z.object({
+	email: z
+		.string()
+		.trim()
+		.toLowerCase()
+		.email("Please provide a valid email address")
+		.max(255, "Email must not exceed 255 characters"),
+
+	password: z
+		.string()
+		.min(8, "Password must be at least 8 characters long")
+		.max(128, "Password must not exceed 128 characters")
+		.regex(
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/,
+			"Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+		),
+});
+
+export type ILoginUserPayload = z.infer<typeof loginUserAuthZodSchema>;
+
 export const authValidation = {
 	registerZodSchema,
 	verifyEmailZodSchema,
 	forgotPasswordZodSchema,
 	ResetPasswordZodSchema,
 	resendOtpZodSchema,
+  loginUserAuthZodSchema
 };

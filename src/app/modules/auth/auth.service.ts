@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import type { IRegisterPayload, IVerifyEmailPayload } from "./auth.validation";
+import type { ILoginUserPayload, IRegisterPayload, IVerifyEmailPayload } from "./auth.validation";
 import { createOtp, passwordHash, setRedisOtp } from "../../utils/comon.utils";
 import { redisClient } from "../../lib/redis";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
@@ -327,6 +327,10 @@ const resendOtp = async (payload: IResendOtp) => {
 	});
 };
 
+// login platformUser superAdmin by credential
+
+
+
 // export auth services
 export const authServices = {
 	registerCustomer,
@@ -334,4 +338,5 @@ export const authServices = {
 	forgotPassword,
 	resetPassword,
 	resendOtp,
+  // loginUser
 };

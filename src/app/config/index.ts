@@ -21,6 +21,7 @@ export default {
 	super_admin_name: process.env.SUPER_ADMIN_NAME!,
 	super_admin_email: process.env.SUPER_ADMIN_EMAIL!,
 	super_admin_password: process.env.SUPER_ADMIN_PASSWORD!,
+	super_admin_phone: process.env.SUPER_ADMIN_PHONE!,
 
 	redis_user: process.env.REDIS_USER!,
 	redis_password: process.env.REDIS_PASSWORD!,
