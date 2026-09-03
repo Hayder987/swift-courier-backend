@@ -6,12 +6,6 @@ model Employee {
   imagePublicId    String?
   permanentAddress String?
   permanentCity    String?
-
-  realTimeLatitude  Decimal?  @db.Decimal(10, 7)
-  realTimeLongitude Decimal?  @db.Decimal(10, 7)
-  realTimeAddress   Json?
-  realTimeUpdatedAt DateTime?
-
   joinAt          DateTime?
   additionalFiles Json?
   leaveJobAt      DateTime?

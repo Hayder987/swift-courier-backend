@@ -24,7 +24,7 @@ const verifyEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
 	const result = await authServices.verifyEmail(payload);
-	const { accessToken, refreshToken} = result;
+	const { accessToken, refreshToken } = result;
 
 	await authUtils.setCookieResponse(res, { refreshToken });
 
@@ -133,7 +133,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 		success: true,
 		statusCode: httpStatus.CREATED,
 		message: "New accessToken Generated Successfully!",
-		data: { accessToken, refreshToken},
+		data: { accessToken, refreshToken },
 	});
 });
 

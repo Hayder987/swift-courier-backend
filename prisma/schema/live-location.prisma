@@ -12,6 +12,7 @@ model LiveLocation {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, userRole])
   @@index([isSharing])
   @@map("live_locations")
 }

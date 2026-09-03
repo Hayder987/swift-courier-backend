@@ -5,12 +5,6 @@ model Customer {
   imagePublicId String?
   timezone      String  @default("Asia/Dhaka")
   country       String  @default("Bangladesh")
-
-  realTimeLatitude  Decimal?  @db.Decimal(10, 7)
-  realTimeLongitude Decimal?  @db.Decimal(10, 7)
-  realTimeAddress   Json?
-  realTimeUpdatedAt DateTime?
-
   deletionDeadline DateTime?
   deletedAt        DateTime?
 

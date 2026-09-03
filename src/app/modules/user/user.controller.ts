@@ -39,7 +39,6 @@ const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
 	if (!req.file) {
 		throw new AppError(httpStatus.NOT_FOUND, "No File Provided.");
 	}
-
 	const user = req.user;
 
 	if (!user) {
@@ -56,25 +55,9 @@ const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-// update profile image
-const updateLiveAddress = catchAsync(async (req: Request, res: Response) => {
-	const user = req?.user;
-	const payload = req.body;
-
-	const result = await userServices.updateLiveAddress(payload, user!);
-
-	sendResponse(res, {
-		statusCode: httpStatus.CREATED,
-		success: true,
-		message: `Live Location Generate SuccessFully`,
-		data: result,
-	});
-});
-
 // export user controller
 export const userController = {
 	changePassword,
 	getMyProfile,
 	updateProfileImage,
-	updateLiveAddress
 };

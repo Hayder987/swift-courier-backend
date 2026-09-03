@@ -3,8 +3,3 @@ export interface IChangePassword {
 	newPassword: string;
 	reEnterNewPassword: string;
 }
-
-export interface ILiveLocationUser {
-	latitude : string,
-	longitude : string,
-}

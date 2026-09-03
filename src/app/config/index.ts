@@ -37,5 +37,7 @@ export default {
 	cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
 	cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
 	cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET!,
-    openstreet_map_url : process.env.OPENSTREETMAP_URL,
+
+	geoapify_api_key: process.env.GEOAPIFY_API_KEY!,
+	geoapify_map_url: process.env.GEOAPIFY_URL,
 };
