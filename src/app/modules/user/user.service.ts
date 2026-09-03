@@ -10,8 +10,6 @@ import sharp from "sharp";
 import type { UploadApiResponse } from "cloudinary";
 import { cloudinary } from "../../lib/cloudinary";
 import type { IReqUserPayload } from "../../interfaces";
-import { reverseGeocode } from "../../utils/reverseGeocoding";
-import { Prisma } from "../../../generated/prisma/client";
 
 // change password own user
 const changePassword = async (payload: IChangePassword, userId: string) => {

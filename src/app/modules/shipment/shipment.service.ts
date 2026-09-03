@@ -12,61 +12,50 @@ const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, u
 		throw new AppError(httpStatus.NOT_FOUND, "Payload Data Missing!");
 	}
 
-	// Compress + resize image
-	const compressedBuffer = await sharp(buffer)
-		.rotate()
-		.resize({
-			width: 1200,
-			height: 1200,
-			fit: "inside",
-			withoutEnlargement: true,
-		})
-		.webp({
-			quality: 80,
-		})
-		.toBuffer();
+	let cloudinaryResult: UploadApiResponse | undefined;
 
-	// cloudinary upload
-	const cloudinaryResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-		cloudinary.uploader
-			.upload_stream(
-				{
-					resource_type: "auto",
-				},
+	try {
+		// Compress + resize image
+		const compressedBuffer = await sharp(buffer)
+			.rotate()
+			.resize({
+				width: 1200,
+				height: 1200,
+				fit: "inside",
+				withoutEnlargement: true,
+			})
+			.webp({
+				quality: 80,
+			})
+			.toBuffer();
 
-				async (error, result) => {
-					if (error) {
-						return reject(error);
-					}
+		// cloudinary upload
+		cloudinaryResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+			cloudinary.uploader
+				.upload_stream(
+					{
+						resource_type: "auto",
+					},
+					async (error, result) => {
+						if (error) {
+							return reject(error);
+						}
 
-					if (!result) {
-						return reject(new Error("No result returned from Cloudinary"));
-					}
+						if (!result) {
+							return reject(new Error("No result returned from Cloudinary"));
+						}
 
-					resolve(result);
-				},
-			)
-			.end(compressedBuffer);
-	});
+						resolve(result);
+					},
+				)
+				.end(compressedBuffer);
+		});
 
-	const trackNumber: string = await generateTrackingNumber();
+		const trackNumber: string = await generateTrackingNumber();
 
-	const {
-		parcelName,
-		description,
-		parcelWeightGM,
-		pickupAddress,
-		pickupLat,
-		pickupLng,
-		deliveryAddress,
-		deliveryLat,
-		deliveryLng,
-	} = payload;
-
-	const result = await prisma.shipment.create({
-		data: {
+		const {
 			parcelName,
-			description: description || "",
+			description,
 			parcelWeightGM,
 			pickupAddress,
 			pickupLat,
@@ -74,16 +63,44 @@ const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, u
 			deliveryAddress,
 			deliveryLat,
 			deliveryLng,
-			trackingNumber: trackNumber,
-			imageUrl: cloudinaryResult?.secure_url,
-			imagePublicId: cloudinaryResult.public_id,
-			customerId: userId,
-		},
-		omit: {
-			imagePublicId: true,
-		},
-	});
-	return result;
+		} = payload;
+
+		const result = await prisma.shipment.create({
+			data: {
+				parcelName,
+				description: description || "",
+				parcelWeightGM,
+				pickupAddress,
+				pickupLat,
+				pickupLng,
+				deliveryAddress,
+				deliveryLat,
+				deliveryLng,
+				trackingNumber: trackNumber,
+				imageUrl: cloudinaryResult?.secure_url,
+				imagePublicId: cloudinaryResult.public_id,
+				customerId: userId,
+			},
+			omit: {
+				imagePublicId: true,
+			},
+		});
+
+		return result;
+	} catch (error) {
+		// If Cloudinary upload was successful,
+		// but any later operation failed,
+		// delete the uploaded image.
+		if (cloudinaryResult?.public_id) {
+			try {
+				await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+			} catch (deleteError) {
+				console.error("Failed to delete Cloudinary image:", deleteError);
+			}
+		}
+
+		throw error;
+	}
 };
 
 // export shipment services
