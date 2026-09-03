@@ -10,9 +10,8 @@ import { prisma } from "../lib/prisma";
 
 export const auth = (...requiredRole: UserRole[]) => {
 	return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-		const token = req.cookies.accessToken
-			? req.cookies.accessToken
-			: req.headers.authorization?.startsWith("Bearer ")
+		
+		const token = req.headers.authorization?.startsWith("Bearer ")
 				? req.headers.authorization?.split(" ")[1]
 				: req.headers.authorization;
 

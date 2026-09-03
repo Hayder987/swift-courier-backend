@@ -5,7 +5,6 @@ import type { ICreateAuthSessionParams } from "./auth.interface";
 import type { Response } from "express";
 
 interface ITokenPayload {
-	accessToken: string;
 	refreshToken: string;
 }
 
@@ -35,27 +34,12 @@ const createAuthSession = async ({ user }: ICreateAuthSessionParams) => {
 	return {
 		accessToken,
 		refreshToken,
-
-		user: {
-			id: user.id,
-			name: user.name,
-			email: user.email,
-			role: user.role,
-			isEmailVerified: user.isEmailVerified,
-			isEmployee: user.isEmployee,
-		},
 	};
 };
 
 const setCookieResponse = async (res: Response, tokenPayload: ITokenPayload) => {
-	const { accessToken, refreshToken } = tokenPayload;
+	const { refreshToken } = tokenPayload;
 
-	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: false,
-		sameSite: "none",
-		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
 		secure: false,

@@ -24,9 +24,9 @@ const verifyEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
 	const result = await authServices.verifyEmail(payload);
-	const { accessToken, refreshToken, user } = result;
+	const { accessToken, refreshToken} = result;
 
-	await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken });
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -34,7 +34,7 @@ const verifyEmail = catchAsync(async (req: Request, res: Response) => {
 		message: `Verify Email SuccessFull! And Registration SuccessFully!`,
 		data: {
 			accessToken,
-			user,
+			refreshToken,
 		},
 	});
 });
@@ -86,9 +86,9 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const result = await authServices.loginUser(payload);
 
-	const { accessToken, refreshToken, user } = result;
+	const { accessToken, refreshToken } = result;
 
-	await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken });
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -97,7 +97,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 		data: {
 			accessToken,
 			refreshToken,
-			user,
 		},
 	});
 });
@@ -107,9 +106,9 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
 	const result = await authServices.googleLogin(payload);
-	const { accessToken, refreshToken, user } = result;
+	const { accessToken, refreshToken } = result;
 
-	await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken });
 
 	sendResponse(res, {
 		success: true,
@@ -118,7 +117,6 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 		data: {
 			accessToken,
 			refreshToken,
-			user,
 		},
 	});
 });
@@ -127,26 +125,20 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
 	const token = req.cookies.refreshToken;
 
-	const { accessToken, refreshToken, user } = await authServices.refreshTokenToAccess(token);
+	const { accessToken, refreshToken } = await authServices.refreshTokenToAccess(token);
 
-	await authUtils.setCookieResponse(res, { accessToken, refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken });
 
 	sendResponse(res, {
 		success: true,
 		statusCode: httpStatus.CREATED,
 		message: "New accessToken Generated Successfully!",
-		data: { accessToken, refreshToken, user },
+		data: { accessToken, refreshToken},
 	});
 });
 
 //logout
 const logout = catchAsync(async (_req: Request, res: Response) => {
-	res.clearCookie("accessToken", {
-		httpOnly: true,
-		secure: false,
-		sameSite: "lax",
-	});
-
 	res.clearCookie("refreshToken", {
 		httpOnly: true,
 		secure: false,

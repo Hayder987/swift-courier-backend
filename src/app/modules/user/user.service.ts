@@ -394,6 +394,8 @@ const updateLiveAddress = async (
   }
 };
 
+//TODO live-location table er kaj korte hobe
+
 // export user services
 export const userServices = {
   changePassword,
