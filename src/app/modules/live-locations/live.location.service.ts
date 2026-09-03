@@ -1,8 +1,8 @@
 import httpStatus from "http-status";
-import { IReqUserPayload } from "../../interfaces";
+import type { IReqUserPayload } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import { ILiveLocationPayload } from "./live.location.interface";
+import type { ILiveLocationPayload } from "./live.location.interface";
 import { reverseGeocode } from "../../utils/reverseGeocoding";
 import { LocationStatus } from "../../../generated/prisma/enums";
 
@@ -88,15 +88,15 @@ const deleteMyLocation = async (userId: string) => {
 };
 
 // share my location
-const shareMyLocation = async (userId: string) => {
+const updateLocationOngoing = async (locationId: string) => {
 	const isExistLocation = await prisma.liveLocation.findUnique({
 		where: {
-			userId,
+			id: locationId,
 		},
 	});
 
 	if (!isExistLocation) {
-		throw new AppError(httpStatus.NOT_FOUND, "Your Location Not Found!");
+		throw new AppError(httpStatus.NOT_FOUND, "Location Not Found!");
 	}
 
 	if (isExistLocation.isSharing) {
@@ -109,7 +109,7 @@ const shareMyLocation = async (userId: string) => {
 
 	const result = await prisma.liveLocation.update({
 		where: {
-			userId,
+			id: isExistLocation.id,
 		},
 		data: {
 			isSharing: true,
@@ -132,5 +132,5 @@ const shareMyLocation = async (userId: string) => {
 export const locationServices = {
 	liveLocation,
 	deleteMyLocation,
-	shareMyLocation,
+	updateLocationOngoing,
 };

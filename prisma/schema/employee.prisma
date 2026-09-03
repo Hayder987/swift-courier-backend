@@ -1,18 +1,18 @@
 model Employee {
-  id               String  @id @default(uuid()) @db.Uuid
-  userId           String  @unique @db.Uuid
-  employeeCode     String  @unique
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @unique @db.Uuid
+  employeeCode     String    @unique
   imageUrl         String?
   imagePublicId    String?
   permanentAddress String?
   permanentCity    String?
-  joinAt          DateTime?
-  additionalFiles Json?
-  leaveJobAt      DateTime?
-  suspendedAt     DateTime?
-  deletedAt       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  joinAt           DateTime?
+  additionalFiles  Json?
+  leaveJobAt       DateTime?
+  suspendedAt      DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

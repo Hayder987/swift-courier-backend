@@ -1,10 +1,10 @@
 model Customer {
-  id            String  @id @default(uuid()) @db.Uuid
-  userId        String  @unique @db.Uuid
-  imageUrl      String?
-  imagePublicId String?
-  timezone      String  @default("Asia/Dhaka")
-  country       String  @default("Bangladesh")
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @unique @db.Uuid
+  imageUrl         String?
+  imagePublicId    String?
+  timezone         String    @default("Asia/Dhaka")
+  country          String    @default("Bangladesh")
   deletionDeadline DateTime?
   deletedAt        DateTime?
 

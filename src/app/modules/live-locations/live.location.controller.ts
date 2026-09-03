@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { locationServices } from "./live.location.service";
 import { sendResponse } from "../../utils/sendResponse";
@@ -32,13 +32,14 @@ const deleteMyLocation = catchAsync(async (req: Request, res: Response) => {
 });
 
 // share my location
-const shareMyLocation = catchAsync(async (req: Request, res: Response) => {
-	const result = await locationServices.shareMyLocation(req.user?.id as string);
+const updateLocationOngoing = catchAsync(async (req: Request, res: Response) => {
+	const id = req.params.id;
+	const result = await locationServices.updateLocationOngoing(id as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: "Your Location Published SuccessFully!",
+		message: "Your Location Status Update To Ongoing SuccessFully!",
 		data: result,
 	});
 });
@@ -47,5 +48,5 @@ const shareMyLocation = catchAsync(async (req: Request, res: Response) => {
 export const locationController = {
 	liveLocation,
 	deleteMyLocation,
-	shareMyLocation,
+	updateLocationOngoing,
 };

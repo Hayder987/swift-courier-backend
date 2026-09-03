@@ -20,6 +20,10 @@ model User {
   employee     Employee?
   liveLocation LiveLocation?
 
+  shipments  Shipment[]         @relation("CustomerShipments")
+  deliveries Shipment[]         @relation("CourierShipments")
+  tracking   ShipmentTracking[]
+
   @@index([id])
   @@index([role])
   @@index([status])

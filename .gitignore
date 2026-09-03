@@ -9,6 +9,8 @@ node_modules
 
 dist
 
+# /prisma/migrations
+
 # Lock Files
 pnpm-lock.yaml
 yarn.lock

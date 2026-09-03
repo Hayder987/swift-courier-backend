@@ -22,11 +22,7 @@ router.delete(
 	locationController.deleteMyLocation,
 );
 
-// share my location
-router.patch(
-	"/my-location",
-	auth(UserRole.COURIER, UserRole.CUSTOMER),
-	locationController.shareMyLocation,
-);
+// update location
+router.patch("/share/:id", auth(UserRole.COURIER), locationController.updateLocationOngoing);
 
 export const locationRoutes = router;
