@@ -19,7 +19,33 @@ const liveLocation = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// delete my location
+const deleteMyLocation = catchAsync(async (req: Request, res: Response) => {
+	await locationServices.deleteMyLocation(req.user?.id as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Your Location Deleted SuccessFully!",
+		data: null,
+	});
+});
+
+// share my location
+const shareMyLocation = catchAsync(async (req: Request, res: Response) => {
+	const result = await locationServices.shareMyLocation(req.user?.id as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Your Location Published SuccessFully!",
+		data: result,
+	});
+});
+
 // export controller
 export const locationController = {
 	liveLocation,
+	deleteMyLocation,
+	shareMyLocation,
 };

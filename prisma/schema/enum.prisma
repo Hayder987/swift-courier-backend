@@ -15,3 +15,9 @@ enum AuthMethod {
   CREDENTIALS
   GOOGLE
 }
+
+enum LocationStatus {
+  CREATED
+  ONGOING
+  EXPIRED
+}

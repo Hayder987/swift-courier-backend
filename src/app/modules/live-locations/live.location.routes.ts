@@ -15,4 +15,18 @@ router.post(
 	locationController.liveLocation,
 );
 
+// delete my location
+router.delete(
+	"/my-location",
+	auth(UserRole.COURIER, UserRole.CUSTOMER),
+	locationController.deleteMyLocation,
+);
+
+// share my location
+router.patch(
+	"/my-location",
+	auth(UserRole.COURIER, UserRole.CUSTOMER),
+	locationController.shareMyLocation,
+);
+
 export const locationRoutes = router;

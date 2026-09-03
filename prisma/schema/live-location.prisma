@@ -5,6 +5,7 @@ model LiveLocation {
   latitude  Decimal  @db.Decimal(10, 7)
   longitude Decimal  @db.Decimal(10, 7)
   address   Json?
+  status    LocationStatus @default(CREATED)
   isSharing Boolean  @default(false)
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
