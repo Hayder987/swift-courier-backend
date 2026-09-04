@@ -36,6 +36,11 @@ enum ShipmentStatus {
   CANCELLED
 }
 
+enum ShipmentType {
+  NEW
+  OLD
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -46,4 +51,10 @@ enum PaymentStatus {
 enum PaymentProvider {
   STRIPE
   BKASH
+}
+
+enum NotificationType {
+  SHIPMENT
+  PAYMENT
+  GENERAL
 }

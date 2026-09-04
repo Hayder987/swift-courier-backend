@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Shipment Approved - SwiftCourier</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333333;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background-color: #f5f5f5; padding: 40px 15px"
+    >
+      <tr>
+        <td align="center">
+          <!-- Main Container -->
+          <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 600px;
+              background-color: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                align="center"
+                style="background-color: #e50914; padding: 28px 20px"
+              >
+                <h1
+                  style="
+                    margin: 0;
+                    color: #ffffff;
+                    font-size: 28px;
+                    font-weight: 800;
+                    letter-spacing: -0.5px;
+                  "
+                >
+                  SwiftCourier
+                </h1>
+
+                <p
+                  style="
+                    margin: 8px 0 0;
+                    color: #ffffff;
+                    font-size: 14px;
+                    opacity: 0.95;
+                  "
+                >
+                  Fast. Reliable. Delivered.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding: 35px 30px">
+                <!-- Greeting -->
+                <h2 style="margin: 0 0 12px; font-size: 22px; color: #222222">
+                  Hello <%= name %>,
+                </h2>
+
+                <p
+                  style="
+                    margin: 0 0 25px;
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #555555;
+                  "
+                >
+                  Great news! Your shipment has been reviewed and
+                  <strong style="color: #e50914">approved</strong>. Your
+                  shipment is now ready for payment.
+                </p>
+
+                <!-- Status -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    background-color: #fff5f5;
+                    border: 1px solid #ffd6d6;
+                    border-radius: 8px;
+                    margin-bottom: 25px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px 18px">
+                      <p
+                        style="
+                          margin: 0 0 6px;
+                          font-size: 12px;
+                          color: #777777;
+                          text-transform: uppercase;
+                          letter-spacing: 0.5px;
+                        "
+                      >
+                        Shipment Status
+                      </p>
+
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: 18px;
+                          font-weight: 700;
+                          color: #e50914;
+                        "
+                      >
+                        <%= status %>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Shipment Details -->
+                <h3 style="margin: 0 0 15px; font-size: 17px; color: #222222">
+                  Shipment Details
+                </h3>
+
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    border: 1px solid #eeeeee;
+                    border-radius: 8px;
+                    overflow: hidden;
+                  "
+                >
+                  <!-- Parcel Name -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #777777;
+                        font-size: 14px;
+                      "
+                    >
+                      Parcel
+                    </td>
+
+                    <td
+                      align="right"
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #222222;
+                        font-size: 14px;
+                        font-weight: 600;
+                      "
+                    >
+                      <%= parcelName %>
+                    </td>
+                  </tr>
+
+                  <!-- Distance -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #777777;
+                        font-size: 14px;
+                      "
+                    >
+                      Delivery Distance
+                    </td>
+
+                    <td
+                      align="right"
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #222222;
+                        font-size: 14px;
+                        font-weight: 600;
+                      "
+                    >
+                      <%= distance %> km
+                    </td>
+                  </tr>
+
+                  <!-- Service Charge -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #777777;
+                        font-size: 14px;
+                      "
+                    >
+                      Service Charge
+                    </td>
+
+                    <td
+                      align="right"
+                      style="
+                        padding: 14px 16px;
+                        border-bottom: 1px solid #eeeeee;
+                        color: #222222;
+                        font-size: 14px;
+                        font-weight: 600;
+                      "
+                    >
+                      ৳ <%= serviceCharge %>
+                    </td>
+                  </tr>
+
+                  <!-- Delivery Fee -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 14px 16px;
+                        color: #777777;
+                        font-size: 14px;
+                      "
+                    >
+                      Delivery Fee
+                    </td>
+
+                    <td
+                      align="right"
+                      style="
+                        padding: 14px 16px;
+                        color: #222222;
+                        font-size: 14px;
+                        font-weight: 600;
+                      "
+                    >
+                      ৳ <%= deliveryFee %>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Total -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    margin-top: 20px;
+                    background-color: #e50914;
+                    border-radius: 8px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 18px">
+                      <span
+                        style="
+                          color: #ffffff;
+                          font-size: 15px;
+                          font-weight: 600;
+                        "
+                      >
+                        Total Amount
+                      </span>
+                    </td>
+
+                    <td align="right" style="padding: 18px">
+                      <span
+                        style="
+                          color: #ffffff;
+                          font-size: 22px;
+                          font-weight: 800;
+                        "
+                      >
+                        ৳ <%= Number(serviceCharge) + Number(deliveryFee) %>
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Payment Message -->
+                <p
+                  style="
+                    margin: 25px 0 0;
+                    font-size: 14px;
+                    line-height: 1.7;
+                    color: #555555;
+                  "
+                >
+                  Please proceed with the payment to continue processing your
+                  shipment. Once the payment is completed, we'll start preparing
+                  your parcel for delivery.
+                </p>
+
+                <!-- CTA -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin-top: 25px"
+                >
+                  <tr>
+                    <td align="center">
+                      <a
+                        href="#"
+                        style="
+                          display: inline-block;
+                          padding: 13px 28px;
+                          background-color: #e50914;
+                          color: #ffffff;
+                          text-decoration: none;
+                          font-size: 14px;
+                          font-weight: 700;
+                          border-radius: 6px;
+                        "
+                      >
+                        Proceed to Payment
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                align="center"
+                style="
+                  background-color: #fafafa;
+                  border-top: 1px solid #eeeeee;
+                  padding: 22px 20px;
+                "
+              >
+                <p
+                  style="
+                    margin: 0 0 8px;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #e50914;
+                  "
+                >
+                  SwiftCourier
+                </p>
+
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 12px;
+                    line-height: 1.6;
+                    color: #888888;
+                  "
+                >
+                  Thank you for choosing SwiftCourier.<br />
+                  Fast. Reliable. Delivered.
+                </p>
+
+                <p style="margin: 12px 0 0; font-size: 11px; color: #aaaaaa">
+                  This is an automated email. Please do not reply.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

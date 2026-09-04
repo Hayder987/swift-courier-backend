@@ -31,7 +31,24 @@ const createShipment = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// update status by admin
+const updateShipmentStatus = catchAsync(async (req: Request, res: Response) => {
+	const payload = req.body;
+	const user = req.user!;
+	const shipmentId = req.params.id ;
+
+	const result = await shipmentServices.updateShipmentByAdmin(payload, user, shipmentId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: `This Shipment Update To ${payload.status} SuccessFully!`,
+		data: result,
+	});
+});
+
 // export shipment controller
 export const shipmentController = {
 	createShipment,
+	updateShipmentStatus
 };
