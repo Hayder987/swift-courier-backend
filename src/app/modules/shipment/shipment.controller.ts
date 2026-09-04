@@ -40,7 +40,23 @@ const updateShipmentStatus = catchAsync(async (req: Request, res: Response) => {
 	const result = await shipmentServices.updateShipmentByAdmin(payload, user, shipmentId as string);
 
 	sendResponse(res, {
-		statusCode: httpStatus.CREATED,
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `This Shipment Update To ${payload.status} SuccessFully!`,
+		data: result,
+	});
+});
+
+// update status by courier
+const updateShipmentStatusCourier = catchAsync(async (req: Request, res: Response) => {
+	const payload = req.body;
+	const user = req.user!;
+	const shipmentId = req.params.id ;
+
+	const result = await shipmentServices.updateShipmentByCourier(payload, user, shipmentId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
 		success: true,
 		message: `This Shipment Update To ${payload.status} SuccessFully!`,
 		data: result,
@@ -50,5 +66,6 @@ const updateShipmentStatus = catchAsync(async (req: Request, res: Response) => {
 // export shipment controller
 export const shipmentController = {
 	createShipment,
-	updateShipmentStatus
+	updateShipmentStatus,
+	updateShipmentStatusCourier
 };

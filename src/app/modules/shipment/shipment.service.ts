@@ -13,11 +13,15 @@ import {
   ShipmentType,
   UserRole,
 } from "../../../generated/prisma/enums";
-import { IShipmentStatusAdmin } from "./shipment.interface";
+import {
+  IShipmentStatusAdmin,
+  IShipmentStatusCourier,
+} from "./shipment.interface";
 import { generateDeliveryFee } from "../../utils/generateDeliveryFee";
 import { notificationDeadline } from "../../utils/comon.utils";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
 
+// create shipment by customer
 const createShipment = async (
   buffer: Buffer,
   payload: ICreateShipmentPayload,
@@ -100,8 +104,7 @@ const createShipment = async (
         notification: {
           create: {
             title: "New Shipment Requested",
-            message:
-              "New Shipment Requested For Payment",
+            message: "New Shipment Requested For Payment",
             type: NotificationType.GENERAL,
             userId: userId,
             notificationDeadline: notificationDeadline,
@@ -139,6 +142,7 @@ const createShipment = async (
   }
 };
 
+// update shipment status by admin
 const updateShipmentByAdmin = async (
   payload: IShipmentStatusAdmin,
   user: IReqUserPayload,
@@ -164,8 +168,15 @@ const updateShipmentByAdmin = async (
         );
       }
 
-      if (user.role === UserRole.CUSTOMER) {
+      if (user.role === UserRole.CUSTOMER || user.role === UserRole.COURIER) {
         throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission!");
+      }
+
+      if (payload.status === isExists.status) {
+        throw new AppError(
+          httpStatus.CONFLICT,
+          `This Shipment Status ALready Updated To ${payload.status}`,
+        );
       }
 
       const deleveryInfoPayload = {
@@ -267,8 +278,139 @@ const updateShipmentByAdmin = async (
   return transactionResult;
 };
 
+// update shipment status by courier
+const updateShipmentByCourier = async (
+  payload: IShipmentStatusCourier,
+  user: IReqUserPayload,
+  shipmentId: string,
+) => {
+  const transactionResult = await prisma.$transaction(
+    async (tx) => {
+      const isExists = await tx.shipment.findUnique({
+        where: {
+          id: shipmentId,
+        },
+        select: {
+          id: true,
+          status: true,
+          customerId: true,
+        },
+      });
+
+      if (!isExists) {
+        throw new AppError(httpStatus.NOT_FOUND, "Shipment Not Found");
+      }
+
+      if (isExists.status === ShipmentStatus.CANCELLED) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          "Shipment Already Cancelled!",
+        );
+      }
+
+      if (user.role === UserRole.CUSTOMER) {
+        throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission!");
+      }
+
+      const shipmentStatusFlow: ShipmentStatus[] = [
+        ShipmentStatus.PICKED_UP,
+        ShipmentStatus.IN_TRANSIT,
+        ShipmentStatus.OUT_FOR_DELIVERY,
+        ShipmentStatus.DELIVERED,
+      ];
+
+      const currentStatus = isExists.status;
+      const nextStatus = payload.status;
+
+      if (
+        currentStatus === ShipmentStatus.DELIVERED ||
+        currentStatus === ShipmentStatus.DELIVERY_FAILED
+      ) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `Shipment is already ${currentStatus}. Status cannot be changed.`,
+        );
+      }
+
+      if (nextStatus === ShipmentStatus.DELIVERY_FAILED) {
+        const currentIndex = shipmentStatusFlow.indexOf(
+          currentStatus as ShipmentStatus,
+        );
+
+        if (currentIndex === -1) {
+          throw new AppError(
+            httpStatus.BAD_REQUEST,
+            `Shipment cannot be marked as DELIVERY_FAILED from ${currentStatus}`,
+          );
+        }
+      } else {
+        const currentIndex = shipmentStatusFlow.indexOf(
+          currentStatus as ShipmentStatus,
+        );
+
+        const nextIndex = shipmentStatusFlow.indexOf(nextStatus);
+
+        if (nextIndex === -1) {
+          throw new AppError(
+            httpStatus.BAD_REQUEST,
+            `Invalid shipment status transition: ${currentStatus} → ${nextStatus}`,
+          );
+        }
+
+        if (currentIndex === nextIndex) {
+          throw new AppError(
+            httpStatus.BAD_REQUEST,
+            `Shipment is already ${currentStatus}`,
+          );
+        }
+
+        if (nextIndex !== currentIndex + 1) {
+          throw new AppError(
+            httpStatus.BAD_REQUEST,
+            `Invalid status transition: ${currentStatus} → ${nextStatus}. ` +
+              `Shipment must follow the status sequence.`,
+          );
+        }
+      }
+
+      const result = await tx.shipment.update({
+        where: {
+          id: isExists.id,
+        },
+        data: {
+          status: payload.status,
+          notification: {
+            create: {
+              title: "Shipment Status Updated",
+              message: `Your Shipment Processing To ${payload.status}`,
+              type: NotificationType.SHIPMENT,
+              userId: user.id,
+              notificationDeadline: notificationDeadline,
+            },
+          },
+          tracking: {
+            create: {
+              updatedById: user.id,
+              status: payload.status,
+              note: payload.note,
+            },
+          },
+        },
+      });
+
+      return result;
+    },
+    {
+      maxWait: 15000,
+      timeout: 20000,
+    },
+  );
+  return transactionResult;
+};
+
 // export shipment services
 export const shipmentServices = {
   createShipment,
   updateShipmentByAdmin,
+  updateShipmentByCourier,
 };

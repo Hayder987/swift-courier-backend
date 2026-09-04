@@ -24,4 +24,12 @@ router.patch(
   shipmentController.updateShipmentStatus,
 );
 
+//shipment update by courier
+router.patch(
+  "/courier-status/:id",
+  validateRequest(shipmentValidation.shipmentStatusAdminZodSchema),
+  auth(UserRole.COURIER, UserRole.ADMIN),
+  shipmentController.updateShipmentStatusCourier,
+);
+
 export const shipmentRoutes = router;
