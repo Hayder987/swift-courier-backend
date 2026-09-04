@@ -69,10 +69,26 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get user profile by id
+const getUserById = catchAsync(async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	const userRole = req.user?.role;
+
+	const { user, profile } = await userServices.getUserById(userId as string, userRole as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `User Profile Retrieve Successfully`,
+		data: { user, profile },
+	});
+});
+
 // export user controller
 export const userController = {
 	changePassword,
 	getMyProfile,
 	updateProfileImage,
-	getAllUsers
+	getAllUsers,
+	getUserById
 };

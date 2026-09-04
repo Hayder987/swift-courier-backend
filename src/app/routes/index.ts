@@ -7,7 +7,7 @@ import { shipmentRoutes } from "../modules/shipment/shipment.routes";
 const router = Router();
 
 router.use("/auth", authRoutes);
-router.use("/user", userRoutes);
+router.use("/users", userRoutes);
 router.use("/location", locationRoutes);
 router.use("/shipments", shipmentRoutes);
 

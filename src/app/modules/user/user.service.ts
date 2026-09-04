@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 import { AppError } from "../../utils/AppError";
 import type { IChangePassword } from "./user.interface";
 import { prisma } from "../../lib/prisma";
-import { AuthMethod, UserStatus } from "../../../generated/prisma/enums";
+import { AuthMethod, UserRole, UserStatus } from "../../../generated/prisma/enums";
 import bcrypt from "bcryptjs";
 import { passwordHash } from "../../utils/comon.utils";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
@@ -358,10 +358,72 @@ const getAllUsers = async (query: IQuery) => {
   };
 };
 
+// get user by id
+const getUserById = async (userId: string, userRole : string) => {
+  if (!userId) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "User Id Not Found please Add userId In Params.",
+    );
+  }
+
+  if(userRole === UserRole.CUSTOMER){
+   throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You Have No Permission.",
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      authMethod: true,
+      isEmailVerified: true,
+      isEmployee: true,
+      role: true,
+      status: true,
+	  isDeleted : true,
+      lastLoginAt: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+  }
+
+  let profile = null;
+
+  if (user.isEmployee && userRole !== UserRole.COURIER) {
+    profile = await prisma.employee.findUnique({
+      where: {
+        userId: user.id,
+      },
+    });
+  } else {
+    profile = await prisma.customer.findUnique({
+      where: {
+        userId: user.id,
+      },
+    });
+  }
+
+  return { user, profile };
+};
+
 // export user services
 export const userServices = {
   changePassword,
   getMyProfile,
   updateProfileImage,
   getAllUsers,
+  getUserById
 };
