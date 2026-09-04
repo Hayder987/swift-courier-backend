@@ -31,4 +31,9 @@ router.get(
 	userController.getMyProfile,
 );
 
+router.get("/all-user",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	userController.getAllUsers
+)
+
 export const userRoutes = router;

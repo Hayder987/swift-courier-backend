@@ -58,3 +58,9 @@ enum NotificationType {
   PAYMENT
   GENERAL
 }
+
+enum CourierAvailability {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}

@@ -55,9 +55,24 @@ const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get my user profile
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query;
+
+	const result = await userServices.getAllUsers(query);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `All Users Retrieve Successfully`,
+		data: result,
+	});
+});
+
 // export user controller
 export const userController = {
 	changePassword,
 	getMyProfile,
 	updateProfileImage,
+	getAllUsers
 };
