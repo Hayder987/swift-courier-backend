@@ -35,7 +35,7 @@ const createShipment = catchAsync(async (req: Request, res: Response) => {
 const updateShipmentStatus = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const user = req.user!;
-	const shipmentId = req.params.id ;
+	const shipmentId = req.params.id;
 
 	const result = await shipmentServices.updateShipmentByAdmin(payload, user, shipmentId as string);
 
@@ -51,9 +51,13 @@ const updateShipmentStatus = catchAsync(async (req: Request, res: Response) => {
 const updateShipmentStatusCourier = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const user = req.user!;
-	const shipmentId = req.params.id ;
+	const shipmentId = req.params.id;
 
-	const result = await shipmentServices.updateShipmentByCourier(payload, user, shipmentId as string);
+	const result = await shipmentServices.updateShipmentByCourier(
+		payload,
+		user,
+		shipmentId as string,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -67,5 +71,5 @@ const updateShipmentStatusCourier = catchAsync(async (req: Request, res: Respons
 export const shipmentController = {
 	createShipment,
 	updateShipmentStatus,
-	updateShipmentStatusCourier
+	updateShipmentStatusCourier,
 };

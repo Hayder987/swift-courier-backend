@@ -11,6 +11,22 @@ enum UserStatus {
   DELETED
 }
 
+enum ApplicationStatus {
+  APPLIED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  SUSPENDED
+  RESIGNED
+  TERMINATED
+}
+
 enum AuthMethod {
   CREDENTIALS
   GOOGLE

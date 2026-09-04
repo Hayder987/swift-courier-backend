@@ -31,7 +31,6 @@ const changePasswordZodSchema = z
 		message: "New password must be different from your current password.",
 		path: ["newPassword"],
 	});
-	
 
 export const userValidation = {
 	changePasswordZodSchema,

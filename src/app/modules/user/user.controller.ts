@@ -90,5 +90,5 @@ export const userController = {
 	getMyProfile,
 	updateProfileImage,
 	getAllUsers,
-	getUserById
+	getUserById,
 };

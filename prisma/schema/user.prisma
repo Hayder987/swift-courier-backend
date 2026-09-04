@@ -24,6 +24,7 @@ model User {
   shipments     Shipment[]         @relation("CustomerShipments")
   deliveries    Shipment[]         @relation("CourierShipments")
   tracking      ShipmentTracking[]
+  
 
   @@index([id])
   @@index([role])
