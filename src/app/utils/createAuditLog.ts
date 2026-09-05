@@ -1,6 +1,7 @@
 import type { Prisma } from "../../generated/prisma/client";
 import type { AuditAction, AuditResource } from "../../generated/prisma/enums";
 import { prisma } from "../lib/prisma";
+import { onboardingAuditOldDeadline } from "./comon.utils";
 
 interface ICreateAuditLog {
 	userId: string;
@@ -19,7 +20,7 @@ export const createAuditLog = async (payload: ICreateAuditLog) => {
 			resource: payload.resource,
 			resourceId: payload.resourceId,
 			description: payload.description,
-
+            onboardingOldTime : onboardingAuditOldDeadline,
 			metadata: payload.metadata ? (payload.metadata as Prisma.InputJsonValue) : undefined,
 		},
 	});

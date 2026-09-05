@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>
+    <%= isDeleted ? "Account Deleted" : "Account Suspended" %>
+  </title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333333;
+    }
+
+    .wrapper {
+      width: 100%;
+      padding: 40px 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      background-color: #e50914;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .logo {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .content {
+      padding: 40px 35px;
+    }
+
+    .icon {
+      width: 64px;
+      height: 64px;
+      line-height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background-color: #fde7e9;
+      color: #e50914;
+      text-align: center;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .title {
+      margin: 0 0 15px;
+      text-align: center;
+      color: #222222;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .message {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #555555;
+      margin-bottom: 25px;
+    }
+
+    .account-box {
+      background-color: #fafafa;
+      border: 1px solid #eeeeee;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 25px 0;
+    }
+
+    .account-row {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #333333;
+    }
+
+    .value {
+      color: #666666;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background-color: #fde7e9;
+      color: #e50914;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .notice {
+      padding: 16px 18px;
+      border-left: 4px solid #e50914;
+      background-color: #fff5f5;
+      border-radius: 4px;
+      color: #555555;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: 25px;
+    }
+
+    .footer {
+      border-top: 1px solid #eeeeee;
+      padding: 25px 20px;
+      text-align: center;
+      color: #888888;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .brand {
+      color: #e50914;
+      font-weight: 700;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .wrapper {
+        padding: 20px 10px;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+
+      .title {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrapper">
+
+    <div class="container">
+
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">SwiftCourier</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <div class="icon">
+          <%= isDeleted ? "!" : "!" %>
+        </div>
+
+        <h2 class="title">
+          <%= isDeleted
+            ? "Your Account Has Been Deleted"
+            : "Your Account Has Been Suspended"
+          %>
+        </h2>
+
+        <p class="message">
+          Hello <strong><%= name || "User" %></strong>,
+        </p>
+
+        <% if (isDeleted) { %>
+
+          <p class="message">
+            We're writing to inform you that your
+            <strong>SwiftCourier account has been permanently deleted</strong>.
+            Your account is no longer available for use.
+          </p>
+
+        <% } else { %>
+
+          <p class="message">
+            We're writing to inform you that your
+            <strong>SwiftCourier account has been suspended</strong>.
+            You may no longer be able to access certain account features
+            until the suspension is resolved.
+          </p>
+
+        <% } %>
+
+        <!-- Account Information -->
+        <div class="account-box">
+
+          <div class="account-row">
+            <span class="label">Name:</span>
+            <span class="value">
+              <%= name || "N/A" %>
+            </span>
+          </div>
+
+          <div class="account-row">
+            <span class="label">Email:</span>
+            <span class="value">
+              <%= email || "N/A" %>
+            </span>
+          </div>
+
+          <div class="account-row">
+            <span class="label">Status:</span>
+            <br />
+
+            <span class="status">
+              <%= status || (isDeleted ? "DELETED" : "SUSPENDED") %>
+            </span>
+          </div>
+
+          <% if (isDeleted && deletedAt) { %>
+            <div class="account-row">
+              <span class="label">Deleted At:</span>
+              <span class="value">
+                <%= new Date(deletedAt).toLocaleString() %>
+              </span>
+            </div>
+          <% } %>
+
+        </div>
+
+        <!-- Notice -->
+        <div class="notice">
+
+          <% if (isDeleted) { %>
+
+            This account deletion is permanent. If you believe this
+            action was taken in error, please contact SwiftCourier
+            support for assistance.
+
+          <% } else { %>
+
+            If you believe your account was suspended by mistake,
+            please contact SwiftCourier support for assistance.
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div>
+          Thank you for using
+          <span class="brand">SwiftCourier</span>.
+        </div>
+
+        <div style="margin-top: 8px;">
+          © <%= new Date().getFullYear() %> SwiftCourier.
+          All rights reserved.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+

@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { AuthMethod, SalaryType, UserRole } from "../../generated/prisma/enums";
+import { ApplicationStatus, AuthMethod, SalaryType, UserRole } from "../../generated/prisma/enums";
 import config from "../config";
 import { prisma } from "../lib/prisma";
 import { AppError } from "./AppError";
@@ -220,6 +220,7 @@ export const seedTestCourier = async () => {
 								vehicleLicenseNumber: "Trx-1125252",
 								qualifications: "Msc",
 								zoneId: "02cea330-6873-4384-b49e-d8a816d8110e",
+								applicationStatus: ApplicationStatus.APPROVED,
 							},
 						},
 					},

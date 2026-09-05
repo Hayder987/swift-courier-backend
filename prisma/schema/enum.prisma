@@ -128,3 +128,8 @@ enum AuditResource {
   PAYROLL
   SALARY
 }
+
+enum AuditType {
+  CURRENT
+  OLD
+}

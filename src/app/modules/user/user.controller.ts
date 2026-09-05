@@ -84,6 +84,21 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get delete user by id
+const deleteUserById = catchAsync(async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	const user = req.user!;
+
+	const result = await userServices.deleteUserId(userId as string, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `User Soft Deleted Successfully`,
+		data: result,
+	});
+});
+
 // export user controller
 export const userController = {
 	changePassword,
@@ -91,4 +106,5 @@ export const userController = {
 	updateProfileImage,
 	getAllUsers,
 	getUserById,
+	deleteUserById,
 };
