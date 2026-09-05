@@ -13,7 +13,7 @@ import {
 	UserStatus,
 } from "../../../generated/prisma/enums";
 import { notificationDeadline, onboardingCourierDeadline } from "../../utils/comon.utils";
-import { IApprovedCourierReqPayload } from "./employee.inerface";
+import type { IApprovedCourierReqPayload } from "./employee.inerface";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
 import { generateEmployeeCode } from "../../utils/generateEmployeeCode";
 

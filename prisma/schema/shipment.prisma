@@ -10,12 +10,6 @@ model Shipment {
   parcelName       String
   description      String         @db.Text
   parcelWeightGM   Decimal        @db.Decimal(8, 2)
-  pickupAddress    String
-  pickupLat        Decimal        @db.Decimal(10, 7)
-  pickupLng        Decimal        @db.Decimal(10, 7)
-  deliveryAddress  String
-  deliveryLng      Decimal?       @db.Decimal(10, 7)
-  deliveryLat      Decimal?       @db.Decimal(10, 7)
   deliveryFee      Decimal?       @db.Decimal(10, 2)
   deliveryDistance Decimal?       @db.Decimal(10, 2)
   status           ShipmentStatus @default(CREATED)
@@ -24,12 +18,30 @@ model Shipment {
   updatedAt        DateTime       @updatedAt
   deletedAt        DateTime?
   onboardingTime   DateTime?
+
+  pickupAddress    String
+  pickupLat        Decimal        @db.Decimal(10, 7)
+  pickupLng        Decimal        @db.Decimal(10, 7)
+  deliveryAddress  String
+  deliveryLng      Decimal?       @db.Decimal(10, 7)
+  deliveryLat      Decimal?       @db.Decimal(10, 7)
+
+
+  pickupZoneId String? @db.Uuid
+  deliveryZoneId String? @db.Uuid
+
+  pickupZone Zone? @relation("PickupZone", fields: [pickupZoneId],references: [id])
+
+  deliveryZone Zone? @relation("DeliveryZone",fields: [deliveryZoneId],references: [id])
   
 
   tracking     ShipmentTracking[]
   payments     Payment[]
   notification Notification[]
 
+  
+  @@index([pickupZoneId])
+  @@index([deliveryZoneId])
   @@index([type])
   @@index([customerId])
   @@index([courierId])

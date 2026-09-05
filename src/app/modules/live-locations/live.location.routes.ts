@@ -11,7 +11,7 @@ const router = Router();
 router.post(
 	"/generate",
 	validateRequest(locationValidation.liveLocationZodSchema),
-	auth(UserRole.COURIER, UserRole.CUSTOMER),
+	auth(UserRole.COURIER, UserRole.CUSTOMER, UserRole.SUPER_ADMIN, UserRole.ADMIN),
 	locationController.liveLocation,
 );
 

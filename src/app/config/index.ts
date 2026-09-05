@@ -38,6 +38,10 @@ export default {
 	cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
 	cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET!,
 
+	geoapify_geocode_url:
+		process.env.GEOAPIFY_GEOCODE_URL || "https://api.geoapify.com/v1/geocode/search",
+
 	geoapify_api_key: process.env.GEOAPIFY_API_KEY!,
-	geoapify_map_url: process.env.GEOAPIFY_URL,
+
+	geoapify_map_url: process.env.GEOAPIFY_URL || "https://maps.geoapify.com",
 };
