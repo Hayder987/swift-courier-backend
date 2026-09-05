@@ -42,10 +42,10 @@ router.get(
 );
 
 router.patch(
-  "/user/:userId/status",
-  auth(UserRole.ADMIN),
-  validateRequest(userValidation.changeUserStatusSchema),
-  userController.changeUserStatus,
+	"/user/:userId/status",
+	auth(UserRole.ADMIN),
+	validateRequest(userValidation.changeUserStatusSchema),
+	userController.changeUserStatus,
 );
 
 // delete user by admin

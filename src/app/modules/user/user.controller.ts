@@ -85,7 +85,6 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-
 // get delete user by id
 const deleteUserById = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.params.id;
@@ -102,27 +101,21 @@ const deleteUserById = catchAsync(async (req: Request, res: Response) => {
 });
 
 // change user zod schema
-const changeUserStatus = catchAsync(
-  async (req: Request, res: Response) => {
-    const { userId } = req.params;
+const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
+	const { userId } = req.params;
 
-    const result = await userServices.changeUserStatus(
-      userId as string,
-      req.user!,
-      req.body,
-    );
+	const result = await userServices.changeUserStatus(userId as string, req.user!, req.body);
 
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message:
-        result.user.status === UserStatus.SUSPENDED
-          ? "User suspended successfully"
-          : "User activated successfully",
-      data: result,
-    });
-  },
-);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message:
+			result.user.status === UserStatus.SUSPENDED
+				? "User suspended successfully"
+				: "User activated successfully",
+		data: result,
+	});
+});
 
 // export user controller
 export const userController = {
@@ -132,5 +125,5 @@ export const userController = {
 	getAllUsers,
 	getUserById,
 	deleteUserById,
-	changeUserStatus
+	changeUserStatus,
 };
