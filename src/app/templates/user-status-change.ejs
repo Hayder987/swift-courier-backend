@@ -1,12 +1,20 @@
-```ejs
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>
-    <%= isDeleted ? "Account Deleted" : "Account Suspended" %>
+    <%= isSuspended
+      ? "Account Suspended"
+      : "Account Activated"
+    %>
   </title>
 
   <style>
@@ -102,7 +110,7 @@
 
     .status {
       display: inline-block;
-      margin-top: 4px;
+      margin-top: 6px;
       padding: 5px 10px;
       border-radius: 20px;
       background-color: #fde7e9;
@@ -156,114 +164,177 @@
 <body>
 
   <div class="wrapper">
+
     <div class="container">
 
       <!-- Header -->
+
       <div class="header">
-        <h1 class="logo">SwiftCourier</h1>
+
+        <h1 class="logo">
+          SwiftCourier
+        </h1>
+
       </div>
 
       <!-- Content -->
+
       <div class="content">
 
         <!-- Icon -->
+
         <div class="icon">
-          !
+          <%= isSuspended ? "!" : "✓" %>
         </div>
 
         <!-- Title -->
+
         <h2 class="title">
-          <%= isDeleted
-            ? "Your Account Has Been Deleted"
-            : "Your Account Has Been Suspended"
+
+          <%= isSuspended
+            ? "Your Account Has Been Suspended"
+            : "Your Account Has Been Activated"
           %>
+
         </h2>
 
         <!-- Greeting -->
+
         <p class="message">
-          Hello <strong><%= name || "User" %></strong>,
+
+          Hello
+          <strong>
+            <%= name || "User" %>
+          </strong>,
+
         </p>
 
-        <!-- Main Message -->
-        <% if (isDeleted) { %>
+        <!-- Suspended -->
+
+        <% if (isSuspended) { %>
 
           <p class="message">
+
             We're writing to inform you that your
-            <strong>SwiftCourier account has been permanently deleted</strong>.
-            Your account is no longer available for use.
+            <strong>
+              SwiftCourier account has been suspended
+            </strong>.
+
+            You will not be able to use your account while the
+            suspension is active.
+
           </p>
 
-        <% } else { %>
-
-          <p class="message">
-            We're writing to inform you that your
-            <strong>SwiftCourier account has been suspended</strong>.
-            This suspension will remain active for
-            <strong>15 days</strong>.
-          </p>
-
-          <% if (onboardingSuspensionTime) { %>
+          <% if (suspensionExpiresAt) { %>
 
             <p class="message">
-              Your suspension started on
+
+              Your account will be
               <strong>
-                <%= new Date(onboardingSuspensionTime).toLocaleString() %>
-              </strong>.
+                automatically activated
+              </strong>
+              after the suspension period ends.
+
             </p>
 
           <% } %>
+
+        <% } else { %>
+
+          <!-- Activated -->
+
+          <p class="message">
+
+            Good news! Your
+            <strong>
+              SwiftCourier account has been activated
+            </strong>
+            again.
+
+          </p>
+
+          <p class="message">
+
+            You can now log in and continue using
+            SwiftCourier services normally.
+
+          </p>
 
         <% } %>
 
 
         <!-- Account Information -->
+
         <div class="account-box">
 
+          <!-- Name -->
+
           <div class="account-row">
-            <span class="label">Name:</span>
+
+            <span class="label">
+              Name:
+            </span>
+
             <span class="value">
               <%= name || "N/A" %>
             </span>
+
           </div>
 
+
+          <!-- Email -->
+
           <div class="account-row">
-            <span class="label">Email:</span>
+
+            <span class="label">
+              Email:
+            </span>
+
             <span class="value">
               <%= email || "N/A" %>
             </span>
+
           </div>
 
+
+          <!-- Status -->
+
           <div class="account-row">
-            <span class="label">Status:</span>
+
+            <span class="label">
+              Status:
+            </span>
+
             <br />
 
             <span class="status">
-              <%= status || (isDeleted ? "DELETED" : "SUSPENDED") %>
+              <%= status || "N/A" %>
             </span>
+
           </div>
 
 
-          <!-- Deleted At -->
-          <% if (isDeleted && deletedAt) { %>
+          <!-- Suspension End -->
+
+          <% if (isSuspended && suspensionExpiresAt) { %>
 
             <div class="account-row">
-              <span class="label">Deleted At:</span>
-              <span class="value">
-                <%= new Date(deletedAt).toLocaleString() %>
+
+              <span class="label">
+                Suspension Ends:
               </span>
-            </div>
 
-          <% } %>
-
-
-          <!-- Suspension Time -->
-          <% if (!isDeleted && onboardingSuspensionTime) { %>
-
-            <div class="account-row">
-              <span class="label">Suspension Started:</span>
               <span class="value">
-                <%= new Date(onboardingSuspensionTime).toLocaleString() %>
+
+                <%= new Date(
+                  suspensionExpiresAt
+                ).toLocaleString("en-BD", {
+                  dateStyle: "medium",
+                  timeStyle: "short"
+                }) %>
+
               </span>
+
             </div>
 
           <% } %>
@@ -272,20 +343,26 @@
 
 
         <!-- Notice -->
+
         <div class="notice">
 
-          <% if (isDeleted) { %>
+          <% if (isSuspended) { %>
 
-            This account deletion is permanent. If you believe this
-            action was taken in error, please contact SwiftCourier
-            support for assistance.
+            Your account will automatically become
+            <strong>ACTIVE</strong>
+            after the suspension period ends.
+
+            If you believe your account was suspended by mistake,
+            please contact SwiftCourier support.
 
           <% } else { %>
 
-            Your account will remain suspended for
-            <strong>15 days</strong>.
-            If you believe your account was suspended by mistake,
-            please contact SwiftCourier support for assistance.
+            Your account is
+            <strong>ACTIVE</strong>
+            again.
+
+            You can continue using SwiftCourier
+            services normally.
 
           <% } %>
 
@@ -295,23 +372,33 @@
 
 
       <!-- Footer -->
+
       <div class="footer">
 
         <div>
+
           Thank you for using
-          <span class="brand">SwiftCourier</span>.
+          <span class="brand">
+            SwiftCourier
+          </span>.
+
         </div>
 
         <div style="margin-top: 8px;">
-          © <%= new Date().getFullYear() %> SwiftCourier.
+
+          © <%= new Date().getFullYear() %>
+          SwiftCourier.
+
           All rights reserved.
+
         </div>
 
       </div>
 
     </div>
+
   </div>
 
 </body>
+
 </html>
-```

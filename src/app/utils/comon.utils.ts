@@ -27,7 +27,6 @@ export const setRedisOtp = async (key: string, otp: string) => {
 
 const now = new Date();
 export const notificationDeadline = new Date(now.getTime() + 168 * 60 * 60 * 1000); // 7 days
-
 export const onboardingCourierDeadline = new Date(now.getTime() + 240 * 60 * 60 * 1000); // 10 days
-
 export const onboardingAuditOldDeadline = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000); // 3 month
+export const onboardingSuspensionTime = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000); // 15 days

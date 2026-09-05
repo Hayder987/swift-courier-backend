@@ -20,6 +20,7 @@ import { cloudinary } from "../../lib/cloudinary";
 import type { IQuery, IReqUserPayload } from "../../interfaces";
 import type { UserWhereInput } from "../../../generated/prisma/models";
 import { createAuditLog } from "../../utils/createAuditLog";
+import { IChangeUserStatus } from "./user.validation";
 
 // change password own user
 const changePassword = async (payload: IChangePassword, userId: string) => {
@@ -427,7 +428,7 @@ const getUserById = async (userId: string, userRole: string) => {
   return { user, profile };
 };
 
-// get user by id
+// Deleted user by id
 const deleteUserId = async (userId: string, userReq: IReqUserPayload) => {
   if (!userId) {
     throw new AppError(
@@ -505,14 +506,25 @@ const deleteUserId = async (userId: string, userReq: IReqUserPayload) => {
           },
         });
 
-        await tx.courier.updateMany({
+        const courier = await tx.courier.findUnique({
           where: {
             employeeId: employee.id,
           },
-          data: {
-            applicationStatus: ApplicationStatus.REJECTED,
+          select: {
+            id: true,
           },
         });
+
+        if (courier) {
+          await tx.courier.update({
+            where: {
+              employeeId: employee.id,
+            },
+            data: {
+              applicationStatus: ApplicationStatus.REJECTED,
+            },
+          });
+        }
       }
 
       const customer = await tx.customer.findUnique({
@@ -581,6 +593,222 @@ const deleteUserId = async (userId: string, userReq: IReqUserPayload) => {
   return transactionResult;
 };
 
+// Suspense or Active user by id
+const changeUserStatus = async (
+  userId: string,
+  userReq: IReqUserPayload,
+  payload: IChangeUserStatus,
+) => {
+  if (!userId) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "User Id Not Found please Add userId In Params.",
+    );
+  }
+
+  // Only ADMIN can activate/suspend
+  if (userReq.role !== UserRole.ADMIN) {
+    throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission.");
+  }
+
+  const { status: newStatus } = payload;
+
+  // Only ACTIVE / SUSPENDED allowed
+  if (newStatus !== UserStatus.ACTIVE && newStatus !== UserStatus.SUSPENDED) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid user status.");
+  }
+
+  // Find user
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      status: true,
+      isDeleted: true,
+    },
+  });
+
+  if (!existingUser) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
+  }
+
+  // Deleted user cannot be activated/suspended
+  if (existingUser.isDeleted || existingUser.status === UserStatus.DELETED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Deleted user cannot be activated or suspended.",
+    );
+  }
+
+  // Prevent same status update
+  if (existingUser.status === newStatus) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `User is already ${newStatus.toLowerCase()}.`,
+    );
+  }
+
+  const now = new Date();
+
+  const suspensionExpiresAt = new Date(
+    now.getTime() + 15 * 24 * 60 * 60 * 1000,
+  );
+
+  const transactionResult = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status: newStatus,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          status: true,
+          isDeleted: true,
+        },
+      });
+
+      const employee = await tx.employee.findUnique({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
+
+      let updatedEmployee = null;
+
+      if (employee) {
+        updatedEmployee = await tx.employee.update({
+          where: {
+            userId: user.id,
+          },
+
+          data:
+            newStatus === UserStatus.SUSPENDED
+              ? {
+                  employmentStatus: EmploymentStatus.SUSPENDED,
+                  suspendedAt: now,
+                  onboardingTime: suspensionExpiresAt,
+                }
+              : {
+                  employmentStatus: EmploymentStatus.ACTIVE,
+                  suspendedAt: null,
+                  onboardingTime: null,
+                },
+
+          select: {
+            id: true,
+            userId: true,
+            employmentStatus: true,
+            suspendedAt: true,
+            onboardingTime: true,
+          },
+        });
+      }
+
+      const customer = await tx.customer.findUnique({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
+
+      let updatedCustomer = null;
+
+      if (customer) {
+        updatedCustomer = await tx.customer.update({
+          where: {
+            userId: user.id,
+          },
+
+          data: {
+            // Clear deletion deadline
+            deletionDeadline: null,
+          },
+
+          select: {
+            id: true,
+            userId: true,
+          },
+        });
+      }
+
+      return {
+        user,
+        employee: updatedEmployee,
+        customer: updatedCustomer,
+      };
+    },
+    {
+      maxWait: 10000,
+      timeout: 15000,
+    },
+  );
+
+  await createAuditLog({
+    userId: userReq.id,
+    action: AuditAction.UPDATE,
+    resource: AuditResource.USER,
+    resourceId: transactionResult.user.id,
+
+    description:
+      newStatus === UserStatus.SUSPENDED
+        ? "User account suspended"
+        : "User account activated",
+
+    metadata: {
+      previousStatus: existingUser.status,
+      newStatus,
+
+      employeeId: transactionResult.employee?.id ?? null,
+
+      customerId: transactionResult.customer?.id ?? null,
+
+      suspensionExpiresAt: transactionResult.employee?.onboardingTime ?? null,
+    },
+  });
+
+  const isSuspended = newStatus === UserStatus.SUSPENDED;
+
+  const templateData = {
+    name: transactionResult.user.name,
+    email: transactionResult.user.email,
+    status: transactionResult.user.status,
+    suspensionExpiresAt: transactionResult.employee?.onboardingTime ?? null,
+    isSuspended,
+    isActivated: !isSuspended,
+    isDeleted: false,
+  };
+
+  await sendTemplateEmail({
+    to: transactionResult.user.email,
+
+    subject: isSuspended
+      ? "Your SwiftCourier Account Has Been Suspended"
+      : "Your SwiftCourier Account Has Been Activated",
+
+    templateName: "user-status-change",
+
+    data: templateData,
+  });
+
+  return transactionResult;
+};
+
 // export user services
 export const userServices = {
   changePassword,
@@ -589,4 +817,5 @@ export const userServices = {
   getAllUsers,
   getUserById,
   deleteUserId,
+  changeUserStatus,
 };

@@ -20,7 +20,7 @@ export const createAuditLog = async (payload: ICreateAuditLog) => {
 			resource: payload.resource,
 			resourceId: payload.resourceId,
 			description: payload.description,
-            onboardingOldTime : onboardingAuditOldDeadline,
+			onboardingOldTime: onboardingAuditOldDeadline,
 			metadata: payload.metadata ? (payload.metadata as Prisma.InputJsonValue) : undefined,
 		},
 	});

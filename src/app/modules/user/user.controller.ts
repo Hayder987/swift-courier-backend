@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { userServices } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { AppError } from "../../utils/AppError";
+import { UserStatus } from "../../../generated/prisma/enums";
 
 // user change password
 const changePassword = catchAsync(async (req: Request, res: Response) => {
@@ -84,6 +85,7 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+
 // get delete user by id
 const deleteUserById = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.params.id;
@@ -99,6 +101,29 @@ const deleteUserById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// change user zod schema
+const changeUserStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    const result = await userServices.changeUserStatus(
+      userId as string,
+      req.user!,
+      req.body,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message:
+        result.user.status === UserStatus.SUSPENDED
+          ? "User suspended successfully"
+          : "User activated successfully",
+      data: result,
+    });
+  },
+);
+
 // export user controller
 export const userController = {
 	changePassword,
@@ -107,4 +132,5 @@ export const userController = {
 	getAllUsers,
 	getUserById,
 	deleteUserById,
+	changeUserStatus
 };
