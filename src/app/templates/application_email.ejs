@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>
+    <%= isApproved ? "Courier Application Approved" : "Courier Application Update" %>
+  </title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333333;
+    }
+
+    .wrapper {
+      width: 100%;
+      padding: 40px 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      background: #e50914;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .logo {
+      color: #ffffff;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .content {
+      padding: 40px 35px;
+    }
+
+    .greeting {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #222222;
+    }
+
+    .message {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #555555;
+      margin-bottom: 25px;
+    }
+
+     .status-box {
+  padding: 20px;
+  border-radius: 8px;
+  margin: 25px 0;
+  border-left: 5px solid #e50914;
+}
+
+.status-box.approved {
+  background-color: #f0fdf4;
+}
+
+.status-box.rejected {
+  background-color: #fff1f2;
+}
+
+.status-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.status-box.approved .status-title {
+  color: #166534;
+}
+
+.status-box.rejected .status-title {
+  color: #b91c1c;
+}
+
+
+
+    .status-text {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555555;
+    }
+
+    .deadline {
+      background: #fafafa;
+      padding: 15px 18px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555555;
+    }
+
+    .footer {
+      padding: 22px;
+      text-align: center;
+      background: #fafafa;
+      border-top: 1px solid #eeeeee;
+    }
+
+    .footer p {
+      margin: 5px 0;
+      font-size: 13px;
+      color: #888888;
+    }
+
+    .brand {
+      color: #e50914;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrapper">
+
+    <div class="container">
+
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">SwiftCourier</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <div class="greeting">
+          Hello <%= name %>,
+        </div>
+
+        <% if (isApproved) { %>
+
+          <p class="message">
+            Congratulations! We are pleased to inform you that your
+            application for the <strong>Courier</strong> role at
+            <strong>SwiftCourier</strong> has been approved.
+          </p>
+
+          <div class="status-box">
+            <p class="status-title">
+              Application Approved ✓
+            </p>
+
+            <p class="status-text">
+              Your courier application has been successfully approved.
+              You can now continue with the next steps of your onboarding
+              process.
+            </p>
+          </div>
+
+          <p class="message">
+            Welcome to the <strong>SwiftCourier</strong> team. We look forward
+            to working with you and wish you success in your new role.
+          </p>
+
+        <% } else { %>
+
+          <p class="message">
+            Thank you for your interest in joining
+            <strong>SwiftCourier</strong> as a Courier.
+          </p>
+
+          <div class="status-box">
+            <p class="status-title">
+              Application Rejected
+            </p>
+
+            <p class="status-text">
+              Unfortunately, your application for the Courier role has not
+              been approved at this time.
+            </p>
+          </div>
+
+          <% if (deletionDeadline) { %>
+            <div class="deadline">
+              <strong>Account Information:</strong><br />
+              Your employee account is currently scheduled for suspension
+              and deletion according to our application policy.
+              Please contact SwiftCourier support if you believe this
+              decision was made in error.
+            </div>
+          <% } %>
+
+          <p class="message">
+            We appreciate the time and effort you invested in your
+            application. Thank you for considering SwiftCourier.
+          </p>
+
+        <% } %>
+
+        <p class="message">
+          Best regards,<br />
+          <strong class="brand">SwiftCourier Team</strong>
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>
+          This is an automated email from SwiftCourier.
+        </p>
+
+        <p>
+          © <%= new Date().getFullYear() %> SwiftCourier. All rights reserved.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+

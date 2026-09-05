@@ -1,7 +1,6 @@
 model Courier {
     id                String             @id @default(uuid()) @db.Uuid
     employeeId        String             @unique @db.Uuid
-    employeeCode      String?             @unique
     name              String
     email             String             @unique
     vehicleLicenseNumber     String             @unique

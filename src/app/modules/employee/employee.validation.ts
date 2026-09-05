@@ -28,6 +28,11 @@ export const courierProfileZodSchema = z.object({
 
 export type ICourierProfilePayload = z.infer<typeof courierProfileZodSchema>;
 
+const approvedCourierZodSchema = z.object({
+	status: z.enum(["APPROVED", "REJECTED"]),
+});
+
 export const employeeValidation = {
 	courierProfileZodSchema,
+	approvedCourierZodSchema,
 };

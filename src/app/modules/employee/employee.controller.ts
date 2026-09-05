@@ -36,7 +36,23 @@ const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: `Your Application Submit SuccessFully For QOURIER Role`,
+		message: `Your Application Submit SuccessFully For COURIER Role`,
+		data: result,
+	});
+});
+
+// apply for courier
+const approvedCourier = catchAsync(async (req: Request, res: Response) => {
+	const user = req.user!;
+	const payload = req.body;
+	const empId = req.params.id;
+
+	const result = await employeeService.approvedCourier(payload, user, empId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `Courier Application Operation SuccessFully To ${payload.status}`,
 		data: result,
 	});
 });
@@ -44,4 +60,5 @@ const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 // export courier controller
 export const employeeController = {
 	applyForCourier,
+	approvedCourier,
 };

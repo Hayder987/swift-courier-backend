@@ -13,7 +13,6 @@ enum UserStatus {
 
 enum ApplicationStatus {
   APPLIED
-  PENDING
   APPROVED
   REJECTED
 }
@@ -73,6 +72,7 @@ enum NotificationType {
   SHIPMENT
   PAYMENT
   GENERAL
+  APPLICATION
 }
 
 enum CourierAvailability {

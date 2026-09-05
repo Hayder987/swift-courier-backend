@@ -3,6 +3,8 @@ import { auth } from "../../middleware/auth";
 import { UserRole } from "../../../generated/prisma/enums";
 import { employeeController } from "./employee.controller";
 import { upload } from "../../lib/multer";
+import { validateRequest } from "../../middleware/validateRequest";
+import { employeeValidation } from "./employee.validation";
 
 const router = Router();
 
@@ -26,6 +28,13 @@ router.post(
 		},
 	]),
 	employeeController.applyForCourier,
+);
+
+router.patch(
+	"/jobs/:id",
+	validateRequest(employeeValidation.approvedCourierZodSchema),
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	employeeController.approvedCourier,
 );
 
 // employee export routes

@@ -14,7 +14,8 @@ model Employee {
   deletedAt        DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-
+  onboardingTime   DateTime?
+  
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   courier Courier?
