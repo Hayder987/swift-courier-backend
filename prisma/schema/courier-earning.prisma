@@ -1,0 +1,18 @@
+model CourierEarning {
+  id          String      @id @default(uuid()) @db.Uuid
+  courierId   String      @db.Uuid
+  shipmentId  String?     @db.Uuid
+  type        EarningType
+  amount      Decimal     @db.Decimal(12, 2)
+  description String?
+  earningDate DateTime    @default(now())
+  courier     Courier     @relation(fields: [courierId], references: [id], onDelete: Cascade)
+  shipment    Shipment?   @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([courierId])
+  @@index([shipmentId])
+  @@index([earningDate])
+  @@map("courier_earnings")
+}

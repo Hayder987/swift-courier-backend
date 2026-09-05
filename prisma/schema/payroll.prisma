@@ -1,0 +1,28 @@
+model Payroll {
+  id                   String        @id @default(uuid()) @db.Uuid
+  employeeId           String        @db.Uuid
+  month                Int
+  year                 Int
+  basicSalary          Decimal       @db.Decimal(12, 2)
+  totalAllowance       Decimal       @default(0) @db.Decimal(12, 2)
+  deliveryEarning      Decimal       @default(0) @db.Decimal(12, 2)
+  bonus                Decimal       @default(0) @db.Decimal(12, 2)
+  grossSalary          Decimal       @db.Decimal(12, 2)
+  totalDeduction       Decimal       @default(0) @db.Decimal(12, 2)
+  netSalary            Decimal       @db.Decimal(12, 2)
+  totalDeliveries      Int           @default(0)
+  successfulDeliveries Int           @default(0)
+  
+  status               PayrollStatus @default(PENDING)
+  paidAt               DateTime?
+  paymentReference     String?
+  employee             Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@unique([employeeId, month, year])
+  @@index([employeeId])
+  @@index([year, month])
+  @@index([status])
+  @@map("payrolls")
+}

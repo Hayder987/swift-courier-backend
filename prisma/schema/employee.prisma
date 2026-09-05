@@ -1,8 +1,8 @@
 model Employee {
-  id               String    @id @default(uuid()) @db.Uuid
-  userId           String    @unique @db.Uuid
-  employeeCode     String?    @unique
-  employmentStatus  EmploymentStatus @default(ACTIVE)
+  id               String           @id @default(uuid()) @db.Uuid
+  userId           String           @unique @db.Uuid
+  employeeCode     String?          @unique
+  employmentStatus EmploymentStatus @default(ACTIVE)
   imageUrl         String?
   imagePublicId    String?
   permanentAddress String?
@@ -12,13 +12,13 @@ model Employee {
   leaveJobAt       DateTime?
   suspendedAt      DateTime?
   deletedAt        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
   onboardingTime   DateTime?
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  courier Courier?
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courier          Courier?
+  salaryStructure  SalaryStructure?
+  payrolls         Payroll[]
 
   @@index([userId])
   @@index([employeeCode])

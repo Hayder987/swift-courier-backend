@@ -80,3 +80,21 @@ enum CourierAvailability {
   BUSY
   OFFLINE
 }
+
+// salary
+enum SalaryType {
+  FIXED
+  BASE_PLUS_DELIVERY
+}
+
+enum EarningType {
+  DELIVERY
+  BONUS
+  OTHER
+}
+
+enum PayrollStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
