@@ -1,24 +1,31 @@
 import { prisma } from "../lib/prisma";
 
+const EMPLOYEE_CODE_PREFIX = "EMP-";
+const EMPLOYEE_CODE_START = 1;
+const EMPLOYEE_CODE_LOCK_KEY = "swiftcourier:employee-code";
+
 export const generateEmployeeCode = async (): Promise<string> => {
-	const lastEmployee = await prisma.employee.findFirst({
-		orderBy: {
-			employeeCode: "desc",
-		},
-		select: {
-			employeeCode: true,
-		},
+	return prisma.$transaction(async (tx) => {
+		await tx.$executeRaw`
+      SELECT pg_advisory_xact_lock(
+        hashtext(${EMPLOYEE_CODE_LOCK_KEY})
+      )
+    `;
+
+		const result = await tx.$queryRaw<{ maxNumber: number | null }[]>`
+      SELECT MAX(
+        CAST(
+          SUBSTRING("employeeCode" FROM 5) AS INTEGER
+        )
+      ) AS "maxNumber"
+      FROM "employees"
+      WHERE "employeeCode" ~ '^EMP-[0-9]+$'
+    `;
+
+		const maxNumber = result[0]?.maxNumber ?? 0;
+
+		const nextNumber = Math.max(EMPLOYEE_CODE_START, maxNumber + 1);
+
+		return `${EMPLOYEE_CODE_PREFIX}${String(nextNumber).padStart(4, "0")}`;
 	});
-
-	let nextNumber = 1;
-
-	if (lastEmployee?.employeeCode) {
-		const lastNumber = Number(lastEmployee.employeeCode.replace("EMP-", ""));
-
-		if (!Number.isNaN(lastNumber)) {
-			nextNumber = lastNumber + 1;
-		}
-	}
-
-	return `EMP-${String(nextNumber).padStart(4, "0")}`;
 };

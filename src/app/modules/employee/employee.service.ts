@@ -223,7 +223,9 @@ export const approvedCourier = async (
 	}
 
 	const employeeCode =
-		payload.status === ApplicationStatus.APPROVED ? await generateEmployeeCode() : undefined;
+		payload.status === ApplicationStatus.APPROVED ? await generateEmployeeCode() : null;
+
+	console.log({ employeeCode });
 
 	const result = await prisma.$transaction(async (tx) => {
 		const employee = await tx.employee.update({
@@ -317,8 +319,6 @@ export const approvedCourier = async (
 
 	return result;
 };
-
-
 
 // export employee service
 export const employeeService = {
