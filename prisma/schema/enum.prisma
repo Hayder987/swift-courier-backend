@@ -98,3 +98,33 @@ enum PayrollStatus {
   PAID
   CANCELLED
 }
+
+// audit enum
+enum AuditAction {
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  ASSIGN
+  ACCEPT
+  PICKUP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  DELIVERY_FAILED
+  CANCEL
+  PAYMENT
+  PAYROLL
+}
+
+enum AuditResource {
+  USER
+  EMPLOYEE
+  COURIER
+  CUSTOMER
+  SHIPMENT
+  ZONE
+  PAYMENT
+  PAYROLL
+  SALARY
+}

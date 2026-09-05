@@ -23,6 +23,16 @@ export default {
 	super_admin_password: process.env.SUPER_ADMIN_PASSWORD!,
 	super_admin_phone: process.env.SUPER_ADMIN_PHONE!,
 
+	test_admin_name: process.env.TEST_ADMIN_NAME!,
+	test_admin_email: process.env.TEST_ADMIN_EMAIL!,
+	test_admin_password: process.env.TEST_ADMIN_PASSWORD!,
+	test_admin_phone: process.env.TEST_ADMIN_PHONE!,
+
+	test_courier_dha_zone_name: process.env.TEST_COURIER_DHA_ZONE_NAME!,
+	test_courier_dha_zone_email: process.env.TEST_COURIER_DHA_ZONE_EMAIL!,
+	test_courier_dha_zone_password: process.env.TEST_COURIER_DHA_ZONE_PASSWORD!,
+	test_courier_dha_zone_phone: process.env.TEST_COURIER_DHA_ZONE_PHONE!,
+
 	redis_user: process.env.REDIS_USER!,
 	redis_password: process.env.REDIS_PASSWORD!,
 	redis_host: process.env.REDIS_HOST!,
