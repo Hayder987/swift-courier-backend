@@ -57,8 +57,55 @@ const approvedCourier = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get all applicant
+const getAllEmployeeApplicant = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query!;
+
+	const result = await employeeService.getAllEmployeeApplicant(query);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `All Applicant Retrieve SuccessFully`,
+		data: result.data,
+		meta: result.meta,
+	});
+});
+
+// get all applicant
+const getAllEmployees = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query!;
+
+	const result = await employeeService.getAllEmployees(query);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `All Employee Retrieve SuccessFully`,
+		data: result.data,
+		meta: result.meta,
+	});
+});
+
+// get all applicant
+const getEmployeeById = catchAsync(async (req: Request, res: Response) => {
+	const empId = req.params.id!;
+
+	const result = await employeeService.getEmployeeById(empId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `Applicant Retrieve SuccessFully`,
+		data: result,
+	});
+});
+
 // export courier controller
 export const employeeController = {
 	applyForCourier,
 	approvedCourier,
+	getAllEmployeeApplicant,
+	getAllEmployees,
+	getEmployeeById,
 };

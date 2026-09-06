@@ -90,7 +90,6 @@ const updateZone = async (zoneId: string, payload: IUpdateZonePayload) => {
 		updateData.isActive = payload.isActive;
 	}
 
-
 	if (payload.address !== undefined || payload.radiusKm !== undefined) {
 		const address = payload.address ?? existingZone.address;
 

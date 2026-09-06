@@ -8,6 +8,19 @@ import { employeeValidation } from "./employee.validation";
 
 const router = Router();
 
+// get all applicant
+router.get(
+	"/jobs",
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	employeeController.getAllEmployeeApplicant,
+);
+
+router.get(
+	"/all-employee",
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	employeeController.getAllEmployees,
+);
+
 // apply for courier
 router.post(
 	"/be-courier",
@@ -33,8 +46,15 @@ router.post(
 router.patch(
 	"/jobs/:id",
 	validateRequest(employeeValidation.approvedCourierZodSchema),
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	auth(UserRole.ADMIN),
 	employeeController.approvedCourier,
+);
+
+// getEmployee by id
+router.get(
+	"/emp/:id",
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	employeeController.getEmployeeById,
 );
 
 // employee export routes
