@@ -8,47 +8,67 @@ import { upload } from "../../lib/multer";
 
 const router = Router();
 
-// change password
+// Change password
 router.patch(
-	"/change-password",
-	validateRequest(userValidation.changePasswordZodSchema),
-	auth(UserRole.CUSTOMER, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER),
-	userController.changePassword,
+  "/change-password",
+  validateRequest(userValidation.changePasswordZodSchema),
+  auth(
+    UserRole.CUSTOMER,
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.COURIER,
+  ),
+  userController.changePassword,
 );
 
-// update profile image
+// Update profile image
 router.patch(
-	"/profile-image",
-	auth(UserRole.CUSTOMER, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER),
-	upload.single("profileImage"),
-	userController.updateProfileImage,
+  "/profile-image",
+  auth(
+    UserRole.CUSTOMER,
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.COURIER,
+  ),
+  upload.single("profileImage"),
+  userController.updateProfileImage,
 );
 
-// get my profile
+// Get my profile
 router.get(
-	"/me",
-	auth(UserRole.CUSTOMER, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER),
-	userController.getMyProfile,
+  "/me",
+  auth(
+    UserRole.CUSTOMER,
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.COURIER,
+  ),
+  userController.getMyProfile,
 );
 
-// get all user
-router.get("/all-user", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN), userController.getAllUsers);
-
-// get user by id
+// Get all users
 router.get(
-	"/user/:id",
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER),
-	userController.getUserById,
+  "/all-user",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.getAllUsers,
 );
 
+// Get user by ID
+router.get(
+  "/user/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER),
+  userController.getUserById,
+);
+
+// Change user status
 router.patch(
-	"/user/:userId/status",
-	auth(UserRole.ADMIN),
-	validateRequest(userValidation.changeUserStatusSchema),
-	userController.changeUserStatus,
+  "/user/:userId/status",
+  auth(UserRole.ADMIN),
+  validateRequest(userValidation.changeUserStatusSchema),
+  userController.changeUserStatus,
 );
 
-// delete user by admin
+// Delete user
 router.patch("/user/:id", auth(UserRole.ADMIN), userController.deleteUserById);
 
 export const userRoutes = router;

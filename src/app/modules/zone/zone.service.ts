@@ -90,10 +90,7 @@ const updateZone = async (zoneId: string, payload: IUpdateZonePayload) => {
 		updateData.isActive = payload.isActive;
 	}
 
-	/**
-	 * Address or radius change হলে
-	 * নতুন center + boundary generate হবে।
-	 */
+
 	if (payload.address !== undefined || payload.radiusKm !== undefined) {
 		const address = payload.address ?? existingZone.address;
 

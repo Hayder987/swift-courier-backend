@@ -18,7 +18,7 @@ router.post(
 // delete my location
 router.delete(
 	"/my-location",
-	auth(UserRole.COURIER, UserRole.CUSTOMER),
+	auth(UserRole.COURIER, UserRole.CUSTOMER, UserRole.SUPER_ADMIN, UserRole.ADMIN),
 	locationController.deleteMyLocation,
 );
 
