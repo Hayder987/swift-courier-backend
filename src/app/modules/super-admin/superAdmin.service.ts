@@ -16,12 +16,73 @@ import { generateEmployeeCode } from "../../utils/generateEmployeeCode";
 import { geocodeAddress } from "../../utils/zone-utils/geoapify";
 import { getZoneInfo } from "../../utils/zone-utils/getZoneInfo";
 import { sendTemplateEmail } from "../../services/sendTemplateEmail";
+import type { AuditLogWhereInput } from "../../../generated/prisma/models";
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 
 // get all audit logs
 const getAuditLogs = async (query: IQuery) => {
-	return await prisma.auditLog.findMany({
+	const limit = query.limit ? Number(query.limit) : 20;
+	const page = query.page ? Number(query.page) : 1;
+	const skip = (page - 1) * limit;
+	const sortBy = query.sortBy ? query.sortBy : "createdAt";
+	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
+
+	const andConditions: AuditLogWhereInput[] = [];
+
+	if (query.type) {
+		andConditions.push({ type: query.type });
+	}
+
+	if (query.action) {
+		andConditions.push({ action: query.action });
+	}
+
+	if (query.resource) {
+		andConditions.push({
+			resource: query.resource,
+		});
+	}
+
+	if (query.createdAt) {
+		const now = new Date();
+
+		if (query.createdAt === "today") {
+			andConditions.push({
+				createdAt: {
+					gte: startOfDay(now),
+					lte: endOfDay(now),
+				},
+			});
+		}
+
+		if (query.createdAt === "thisWeek") {
+			andConditions.push({
+				createdAt: {
+					gte: startOfWeek(now, { weekStartsOn: 1 }),
+					lte: endOfWeek(now, { weekStartsOn: 1 }),
+				},
+			});
+		}
+
+		if (query.createdAt === "thisMonth") {
+			andConditions.push({
+				createdAt: {
+					gte: startOfMonth(now),
+					lte: endOfMonth(now),
+				},
+			});
+		}
+	}
+
+	const auditLogs = await prisma.auditLog.findMany({
+		where: {
+			AND: andConditions.length > 0 ? andConditions : undefined,
+		},
+		take: limit,
+		skip: skip,
+
 		orderBy: {
-			createdAt: "desc",
+			[sortBy]: sortOrder,
 		},
 
 		include: {
@@ -35,6 +96,22 @@ const getAuditLogs = async (query: IQuery) => {
 			},
 		},
 	});
+
+	const total = await prisma.auditLog.count({
+		where: {
+			AND: andConditions,
+		},
+	});
+
+	return {
+		data: auditLogs,
+		meta: {
+			page: page,
+			limit: limit,
+			total: total,
+			totalPages: Math.ceil(total / limit),
+		},
+	};
 };
 
 // create employee User

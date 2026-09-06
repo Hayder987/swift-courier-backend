@@ -102,6 +102,7 @@ enum PayrollStatus {
 
 // audit enum
 enum AuditAction {
+  CREATED
   UPDATE
   DELETE
   APPROVE

@@ -14,7 +14,8 @@ const getAllAuditLog = catchAsync(async (req: Request, res: Response) => {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: `All Logs Retrieve Successfully`,
-		data: result,
+		data: result.data,
+		meta: result.meta,
 	});
 });
 
