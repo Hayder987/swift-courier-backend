@@ -202,7 +202,7 @@ export const seedTestCourier = async () => {
 					create: {
 						employeeCode,
 						joinAt: new Date(),
-
+                        permanentAddress : "mirpur-2, dhaka",
 						salaryStructure: {
 							create: {
 								salaryType: SalaryType.BASE_PLUS_DELIVERY,

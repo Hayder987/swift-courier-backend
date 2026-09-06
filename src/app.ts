@@ -45,23 +45,21 @@ app.use("/api", apiRateLimiter);
 app.use("/api/v1", router);
 
 app.get("/api/v1/test", async (req: Request, res: Response) => {
-	const zones = await prisma.zone.findMany({
+	const zones = await prisma.employee.findMany({
 		where: {
-			isActive: true,
-		},
-		select: {
-			id: true,
-			name: true,
-			boundary: true,
+			employmentStatus : "ACTIVE",
+			courier :{
+				zoneId : "02cea330-6873-4384-b49e-d8a816d8110e"
+			},
 		},
 	});
 
-	const zone = findZoneFromCoordinates(23.743307, 90.398808, zones);
+	// const zone = findZoneFromCoordinates(23.743307, 90.398808, zones);
 
 	res.status(httpStatus.OK).json({
 		success: true,
 		message: "Test Result",
-		data: zone,
+		data: zones,
 	});
 });
 
