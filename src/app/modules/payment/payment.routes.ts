@@ -16,4 +16,11 @@ router.post(
 
 router.post("/webhook", paymentController.handleWebhook);
 
+// get all payment
+router.get(
+	"/all-payments",
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	paymentController.getAllPayment,
+);
+
 export const paymentRoutes = router;

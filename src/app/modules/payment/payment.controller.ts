@@ -12,7 +12,7 @@ const createCheckoutSession = catchAsync(async (req: Request, res: Response) => 
 
 	sendResponse(res, {
 		success: true,
-		statusCode: httpStatus.OK,
+		statusCode: httpStatus.CREATED,
 		message: "Checkout session created successfully.",
 		data: result,
 	});
@@ -37,8 +37,21 @@ const handleWebhook = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getAllPayment = catchAsync(async (req: Request, res: Response) => {
+
+	const result = await paymentService.getAllPayment(req.query);
+
+	sendResponse(res, {
+		success: true,
+		statusCode: 200,
+		message: "All Payment Retrieve SuccessFully!",
+		data: result,
+	});
+});
+
 // export controller
 export const paymentController = {
 	createCheckoutSession,
 	handleWebhook,
+    getAllPayment
 };
