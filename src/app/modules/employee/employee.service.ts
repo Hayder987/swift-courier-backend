@@ -186,7 +186,7 @@ const applyForCourier = async (
 };
 
 // approved courier
-export const approvedCourier = async (
+const approvedCourier = async (
 	payload: IApprovedCourierReqPayload,
 	user: IReqUserPayload,
 	empId: string,

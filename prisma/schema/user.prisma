@@ -13,6 +13,8 @@ model User {
   isEmployee      Boolean @default(false)
   isDeleted       Boolean @default(false)
 
+  mustChangePassword Boolean @default(false)
+
   lastLoginAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

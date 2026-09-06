@@ -431,6 +431,14 @@ const deleteUserId = async (userId: string, userReq: IReqUserPayload) => {
 		throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
 	}
 
+	if (isExists.role === UserRole.ADMIN) {
+		throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission Delete User Admin ");
+	}
+
+	if (isExists.role === UserRole.SUPER_ADMIN) {
+		throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission Delete Super Admin ");
+	}
+
 	// Already deleted
 	if (isExists.isDeleted || isExists.status === UserStatus.DELETED) {
 		throw new AppError(httpStatus.BAD_REQUEST, "User Already Deleted");
