@@ -240,7 +240,7 @@ const updateShipmentByAdmin = async (
               address : true,
             }
           },
-          deliveryZoneZone : {
+          deliveryZone : {
             select : {
               id : true,
               name : true,
@@ -248,6 +248,13 @@ const updateShipmentByAdmin = async (
               address : true,
             }
           },
+		  customer : {
+			select : {
+				id : true,
+				name : true,
+				email : true,
+			}
+		  } 
 
         }
 			});
@@ -260,9 +267,6 @@ const updateShipmentByAdmin = async (
 				throw new AppError(httpStatus.BAD_REQUEST, "Shipment Already Cancelled!");
 			}
 
-			if (user.role === UserRole.CUSTOMER || user.role === UserRole.COURIER) {
-				throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission!");
-			}
 
 			if (payload.status === isExists.status) {
 				throw new AppError(
@@ -296,7 +300,7 @@ const updateShipmentByAdmin = async (
 								message:
 									"Your Shipment Approved By Swift Courier Service! Payment Info Send To Your Email Make Payment Please!",
 								type: NotificationType.SHIPMENT,
-								userId: user.id,
+								userId: isExists.customer.id,
 								notificationDeadline: notificationDeadline,
 							},
 						},
@@ -310,14 +314,9 @@ const updateShipmentByAdmin = async (
 					},
 				});
 
-				const userData = await tx.user.findUniqueOrThrow({
-					where: {
-						id: result.customerId,
-					},
-				});
 
 				const templateData = {
-					name: userData?.name,
+					name: isExists?.customer?.name,
 					parcelName: result.parcelName,
 					status: ShipmentStatus.READY_FOR_PAYMENT,
 					serviceCharge: deleveryInfo.serviceCharge,
@@ -326,7 +325,7 @@ const updateShipmentByAdmin = async (
 				};
 
 				await sendTemplateEmail({
-					to: userData?.email,
+					to: isExists?.customer?.email,
 					subject: "Your Shipment is Approved",
 					templateName: "shipment-status-approved",
 					data: templateData,
@@ -386,6 +385,13 @@ const updateShipmentByCourier = async (
 					id: true,
 					status: true,
 					customerId: true,
+					customer : {
+						select :{
+							id : true,
+							name : true,
+							email : true,
+						}
+					}
 				},
 			});
 
@@ -466,7 +472,7 @@ const updateShipmentByCourier = async (
 							title: "Shipment Status Updated",
 							message: `Your Shipment Processing To ${payload.status}`,
 							type: NotificationType.SHIPMENT,
-							userId: user.id,
+							userId: isExists.customer.id,
 							notificationDeadline: notificationDeadline,
 						},
 					},

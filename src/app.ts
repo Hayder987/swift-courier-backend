@@ -1,4 +1,8 @@
-import express, { type Application, type Request, type Response } from "express";
+import express, {
+  type Application,
+  type Request,
+  type Response,
+} from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
@@ -16,21 +20,23 @@ const app: Application = express();
 
 // using helmet middleware
 app.use(
-	helmet({
-		crossOriginResourcePolicy: {
-			policy: "cross-origin",
-		},
-	}),
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: "cross-origin",
+    },
+  }),
 );
 
 app.use(requestLogger);
 
 app.use(
-	cors({
-		origin: config.frontend_url,
-		credentials: true,
-	}),
+  cors({
+    origin: config.frontend_url,
+    credentials: true,
+  }),
 );
+
+app.use("/api/v1/payments/webhook", express.raw({ type: 'application/json' }))
 
 // Enable URL-encoded form data parsing
 app.use(express.urlencoded({ extended: true }));
@@ -45,30 +51,57 @@ app.use("/api", apiRateLimiter);
 app.use("/api/v1", router);
 
 app.get("/api/v1/test", async (req: Request, res: Response) => {
-	const zones = await prisma.employee.findMany({
-		where: {
-			employmentStatus : "ACTIVE",
-			courier :{
-				zoneId : "02cea330-6873-4384-b49e-d8a816d8110e"
-			},
-		},
-	});
+  // const zones = await prisma.employee.findMany({
+  // 	where: {
+  // 		employmentStatus : "ACTIVE",
+  // 		courier :{
+  // 			zoneId : "02cea330-6873-4384-b49e-d8a816d8110e"
+  // 		},
+  // 	},
+  // });
 
-	// const zone = findZoneFromCoordinates(23.743307, 90.398808, zones);
+  const zoneId = "02cea330-6873-4384-b49e-d8a816d8110e"
 
-	res.status(httpStatus.OK).json({
-		success: true,
-		message: "Test Result",
-		data: zones,
-	});
+   const [randomCourier] = await prisma.$queryRaw<
+    {
+      userId: string;
+      employeeId: string;
+      courierId: string;
+      name: string;
+      email: string;
+    }[]
+  >`
+    SELECT
+      u.id AS "userId",
+      e.id AS "employeeId",
+      c.id AS "courierId",
+      u.name,
+      u.email
+    FROM "employees" e
+    INNER JOIN "couriers" c
+      ON c."employeeId" = e.id
+    INNER JOIN "users" u
+      ON u.id = e."userId"
+    WHERE e."employmentStatus" = 'ACTIVE'
+      AND c."zoneId" = ${zoneId}
+      AND c."courierAvailability" = 'AVAILABLE'
+    ORDER BY RANDOM()
+    LIMIT 1;
+  `;
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Test Result",
+    data: randomCourier,
+  });
 });
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
-	res.status(httpStatus.OK).json({
-		success: true,
-		message: "Welcome to Swift Courier Services",
-	});
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Welcome to Swift Courier Services",
+  });
 });
 
 // using global Error

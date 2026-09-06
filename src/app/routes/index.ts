@@ -6,6 +6,7 @@ import { shipmentRoutes } from "../modules/shipment/shipment.routes";
 import { employeeRoutes } from "../modules/employee/employee.routes";
 import { zoneRoutes } from "../modules/zone/zone.routes";
 import { superAdminRoutes } from "../modules/super-admin/superAdmin.routes";
+import { paymentRoutes } from "../modules/payment/payment.routes";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/shipments", shipmentRoutes);
 router.use("/employee", employeeRoutes);
 router.use("/zones", zoneRoutes);
 router.use("/super/admin", superAdminRoutes);
+router.use("/payments", paymentRoutes)
 
 export default router;

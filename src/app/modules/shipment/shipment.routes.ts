@@ -20,7 +20,7 @@ router.post(
 router.patch(
 	"/admin-status/:id",
 	validateRequest(shipmentValidation.shipmentStatusAdminZodSchema),
-	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	auth(UserRole.ADMIN),
 	shipmentController.updateShipmentStatus,
 );
 
@@ -28,7 +28,7 @@ router.patch(
 router.patch(
 	"/courier-status/:id",
 	validateRequest(shipmentValidation.shipmentStatusAdminZodSchema),
-	auth(UserRole.COURIER, UserRole.ADMIN),
+	auth(UserRole.COURIER),
 	shipmentController.updateShipmentStatusCourier,
 );
 

@@ -69,6 +69,14 @@ enum PaymentProvider {
   BKASH
 }
 
+enum PaymentMethod {
+  CARD
+  BKASH
+  NAGAD
+  ROCKET
+  BANK
+}
+
 enum NotificationType {
   SHIPMENT
   PAYMENT

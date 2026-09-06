@@ -8,6 +8,7 @@ model Courier {
   resume               String?
   resumePublicId       String?
   applicationStatus    ApplicationStatus? @default(APPLIED)
+  courierAvailability  CourierAvailability @default(AVAILABLE)
   vehicleDocuments     Json?
   nationalidPic        Json?
   zoneId               String?            @db.Uuid
