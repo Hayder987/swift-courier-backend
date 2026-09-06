@@ -11,13 +11,14 @@ const router = Router();
 router.get("/logs", auth(UserRole.SUPER_ADMIN), superAdminController.getAllAuditLog);
 
 router.post(
-  "/create-employee",
-  auth(UserRole.SUPER_ADMIN),
-  validateRequest(
-    superAdminValidation.createEmployeeZodSchema,
-  ),
-  superAdminController.createEmployee
+	"/create-employee",
+	auth(UserRole.SUPER_ADMIN),
+	validateRequest(superAdminValidation.createEmployeeZodSchema),
+	superAdminController.createEmployee,
 );
+
+// delete admin
+router.patch("/:userId", auth(UserRole.SUPER_ADMIN), superAdminController.deleteAdmin);
 
 // export routes
 export const superAdminRoutes = router;

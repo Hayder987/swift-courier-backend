@@ -1,16 +1,16 @@
 import httpStatus from "http-status";
 import {
-  ApplicationStatus,
-  AuthMethod,
-  EmploymentStatus,
-  SalaryType,
-  UserRole,
-  UserStatus,
+	ApplicationStatus,
+	AuthMethod,
+	EmploymentStatus,
+	SalaryType,
+	UserRole,
+	UserStatus,
 } from "../../../generated/prisma/enums";
 import type { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import { ICreateEmployeeUserPayload } from "./superAdmin.validation";
+import type { ICreateEmployeeUserPayload } from "./superAdmin.validation";
 import { passwordHash } from "../../utils/comon.utils";
 import { generateEmployeeCode } from "../../utils/generateEmployeeCode";
 import { geocodeAddress } from "../../utils/zone-utils/geoapify";
@@ -19,250 +19,299 @@ import { sendTemplateEmail } from "../../services/sendTemplateEmail";
 
 // get all audit logs
 const getAuditLogs = async (query: IQuery) => {
-  return await prisma.auditLog.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+	return await prisma.auditLog.findMany({
+		orderBy: {
+			createdAt: "desc",
+		},
 
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      },
-    },
-  });
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					role: true,
+				},
+			},
+		},
+	});
 };
 
 // create employee User
 const createEmployeeUser = async (payload: ICreateEmployeeUserPayload) => {
-  const {
-    name,
-    email,
-    phone,
-    password,
-    role,
-    permanentAddress,
-    permanentCity,
-    basicSalary,
-    houseAllowance,
-    medicalAllowance,
-    transportAllowance,
-    perDeliveryAmount,
-    vehicleLicenseNumber,
-    qualifications,
-  } = payload;
+	const {
+		name,
+		email,
+		phone,
+		password,
+		role,
+		permanentAddress,
+		permanentCity,
+		basicSalary,
+		houseAllowance,
+		medicalAllowance,
+		transportAllowance,
+		perDeliveryAmount,
+		vehicleLicenseNumber,
+		qualifications,
+	} = payload;
 
-  if (role !== UserRole.ADMIN && role !== UserRole.COURIER) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Only ADMIN or COURIER can be created as employee!",
-    );
-  }
+	if (role !== UserRole.ADMIN && role !== UserRole.COURIER) {
+		throw new AppError(httpStatus.BAD_REQUEST, "Only ADMIN or COURIER can be created as employee!");
+	}
 
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
+	const existingUser = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
 
-  if (existingUser) {
-    throw new AppError(
-      httpStatus.CONFLICT,
-      "User already exists with this email!",
-    );
-  }
+	if (existingUser) {
+		throw new AppError(httpStatus.CONFLICT, "User already exists with this email!");
+	}
 
-  const hashPassword = await passwordHash(password);
+	const hashPassword = await passwordHash(password);
 
-  const employeeCode = await generateEmployeeCode();
+	const employeeCode = await generateEmployeeCode();
 
-  let zoneId: string | undefined;
+	let zoneId: string | undefined;
 
-  if (role === UserRole.COURIER) {
-    if (!permanentCity) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        "Permanent city is required for courier!",
-      );
-    }
+	if (role === UserRole.COURIER) {
+		if (!permanentCity) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Permanent city is required for courier!");
+		}
 
-    if (!vehicleLicenseNumber) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        "Vehicle license number is required for courier!",
-      );
-    }
+		if (!vehicleLicenseNumber) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Vehicle license number is required for courier!");
+		}
 
-    if (!qualifications) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        "Qualifications are required for courier!",
-      );
-    }
+		if (!qualifications) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Qualifications are required for courier!");
+		}
 
-    const location = await geocodeAddress(permanentCity);
+		const location = await geocodeAddress(permanentCity);
 
-    if (!location) {
-      throw new AppError(httpStatus.NOT_FOUND, "Location Not Found!");
-    }
+		if (!location) {
+			throw new AppError(httpStatus.NOT_FOUND, "Location Not Found!");
+		}
 
-    const zoneInfo = await getZoneInfo(location.latitude, location.longitude);
+		const zoneInfo = await getZoneInfo(location.latitude, location.longitude);
 
-    if (!zoneInfo) {
-      throw new AppError(
-        httpStatus.NOT_FOUND,
-        "Delivery zone not found for this location!",
-      );
-    }
+		if (!zoneInfo) {
+			throw new AppError(httpStatus.NOT_FOUND, "Delivery zone not found for this location!");
+		}
 
-    zoneId = zoneInfo.id;
-  }
+		zoneId = zoneInfo.id;
+	}
 
-  const employee = await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        name,
-        email,
-        password: hashPassword,
-        phone,
-        isEmailVerified: true,
-        isEmployee: true,
-        isDeleted: false,
-        mustChangePassword: true,
+	const employee = await prisma.$transaction(async (tx) => {
+		const user = await tx.user.create({
+			data: {
+				name,
+				email,
+				password: hashPassword,
+				phone,
+				isEmailVerified: true,
+				isEmployee: true,
+				isDeleted: false,
+				mustChangePassword: true,
 
-        role: role === UserRole.ADMIN ? UserRole.ADMIN : UserRole.COURIER,
+				role: role === UserRole.ADMIN ? UserRole.ADMIN : UserRole.COURIER,
 
-        authMethod: AuthMethod.CREDENTIALS,
+				authMethod: AuthMethod.CREDENTIALS,
 
-        employee: {
-          create: {
-            employeeCode,
-            employmentStatus: EmploymentStatus.ACTIVE,
+				employee: {
+					create: {
+						employeeCode,
+						employmentStatus: EmploymentStatus.ACTIVE,
 
-            permanentAddress,
-            permanentCity,
+						permanentAddress,
+						permanentCity,
 
-            joinAt: new Date(),
+						joinAt: new Date(),
 
-            salaryStructure: {
-              create: {
-                salaryType:
-                  role === UserRole.COURIER
-                    ? SalaryType.BASE_PLUS_DELIVERY
-                    : SalaryType.FIXED,
+						salaryStructure: {
+							create: {
+								salaryType:
+									role === UserRole.COURIER ? SalaryType.BASE_PLUS_DELIVERY : SalaryType.FIXED,
 
-                basicSalary,
-                houseAllowance,
-                medicalAllowance,
-                transportAllowance,
+								basicSalary,
+								houseAllowance,
+								medicalAllowance,
+								transportAllowance,
 
-                perDeliveryAmount:
-                  role === UserRole.COURIER ? perDeliveryAmount : 0,
-              },
-            },
+								perDeliveryAmount: role === UserRole.COURIER ? perDeliveryAmount : 0,
+							},
+						},
 
-            ...(role === UserRole.COURIER && {
-              courier: {
-                create: {
-                  name,
-                  email,
-                  vehicleLicenseNumber: vehicleLicenseNumber!,
-                  qualifications: qualifications!,
-                  zoneId,
-                  applicationStatus: ApplicationStatus.APPROVED,
-                },
-              },
-            }),
-          },
-        },
-      },
+						...(role === UserRole.COURIER && {
+							courier: {
+								create: {
+									name,
+									email,
+									vehicleLicenseNumber: vehicleLicenseNumber!,
+									qualifications: qualifications!,
+									zoneId,
+									applicationStatus: ApplicationStatus.APPROVED,
+								},
+							},
+						}),
+					},
+				},
+			},
 
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        role: true,
-        status: true,
-        isEmployee: true,
-        mustChangePassword: true,
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				phone: true,
+				role: true,
+				status: true,
+				isEmployee: true,
+				mustChangePassword: true,
 
-        employee: {
-          select: {
-            id: true,
-            employeeCode: true,
-            employmentStatus: true,
-            permanentAddress: true,
-            permanentCity: true,
-            joinAt: true,
+				employee: {
+					select: {
+						id: true,
+						employeeCode: true,
+						employmentStatus: true,
+						permanentAddress: true,
+						permanentCity: true,
+						joinAt: true,
 
-            salaryStructure: {
-              select: {
-                id: true,
-                salaryType: true,
-                basicSalary: true,
-                houseAllowance: true,
-                medicalAllowance: true,
-                transportAllowance: true,
-                perDeliveryAmount: true,
-              },
-            },
+						salaryStructure: {
+							select: {
+								id: true,
+								salaryType: true,
+								basicSalary: true,
+								houseAllowance: true,
+								medicalAllowance: true,
+								transportAllowance: true,
+								perDeliveryAmount: true,
+							},
+						},
 
-            courier: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                vehicleLicenseNumber: true,
-                qualifications: true,
-                zoneId: true,
+						courier: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+								vehicleLicenseNumber: true,
+								qualifications: true,
+								zoneId: true,
 
-                zone: {
-                  select: {
-                    id: true,
-                    code: true,
-                    name: true,
-                  },
-                },
+								zone: {
+									select: {
+										id: true,
+										code: true,
+										name: true,
+									},
+								},
 
-                applicationStatus: true,
-              },
-            },
-          },
-        },
-      },
-    });
+								applicationStatus: true,
+							},
+						},
+					},
+				},
+			},
+		});
 
-    return user;
-  });
+		return user;
+	});
 
-  const templateData = {
-    name,
-    email,
-    role,
-    status: employee.status,
-    password,
-  };
+	const templateData = {
+		name,
+		email,
+		role,
+		status: employee.status,
+		password,
+	};
 
-  await sendTemplateEmail({
-    to: email,
-    subject: "SwiftCourier Employee Account Created",
-    templateName: "employee-account-created",
-    data: templateData,
-  });
+	await sendTemplateEmail({
+		to: email,
+		subject: "SwiftCourier Employee Account Created",
+		templateName: "employee-account-created",
+		data: templateData,
+	});
 
-  return employee;
+	return employee;
 };
 
 // delete admin by super admin
+const deleteAdmin = async (userId: string) => {
+	const existingAdmin = await prisma.user.findFirst({
+		where: {
+			id: userId,
+			role: "ADMIN",
+			isDeleted: false,
+		},
+	});
 
+	if (!existingAdmin) {
+		throw new AppError(httpStatus.NOT_FOUND, "Admin not found!");
+	}
+
+	const transactionResult = await prisma.$transaction(async (tx) => {
+		const user = await tx.user.update({
+			where: {
+				id: userId,
+			},
+			data: {
+				status: UserStatus.DELETED,
+				isDeleted: true,
+				isEmployee: false,
+			},
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				isDeleted: true,
+				status: true,
+			},
+		});
+
+		const employee = await tx.employee.findUnique({
+			where: {
+				userId: user.id,
+			},
+			select: {
+				id: true,
+				userId: true,
+			},
+		});
+
+		let updatedEmployee = null;
+
+		if (employee) {
+			updatedEmployee = await tx.employee.update({
+				where: {
+					userId: user.id,
+				},
+				data: {
+					employmentStatus: EmploymentStatus.TERMINATED,
+					deletedAt: new Date(),
+					onboardingTime: null,
+				},
+				select: {
+					id: true,
+					userId: true,
+					employmentStatus: true,
+					deletedAt: true,
+				},
+			});
+		}
+
+		return {
+			user,
+			employee: updatedEmployee,
+		};
+	});
+
+	return transactionResult;
+};
 
 export const superAdminService = {
-  getAuditLogs,
-  createEmployeeUser,
-  
+	getAuditLogs,
+	createEmployeeUser,
+	deleteAdmin,
 };
