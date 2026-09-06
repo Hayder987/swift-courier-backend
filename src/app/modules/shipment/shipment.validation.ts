@@ -27,7 +27,14 @@ export const createShipmentZodSchema = z.object({
 export type ICreateShipmentPayload = z.infer<typeof createShipmentZodSchema>;
 
 const shipmentStatusAdminZodSchema = z.object({
-	status: z.enum(["READY_FOR_PAYMENT", "RETURNED", "OUT_FOR_DELIVERY", "IN_TRANSIT", "ASSIGNED", "CANCELLED"]),
+	status: z.enum([
+		"READY_FOR_PAYMENT",
+		"RETURNED",
+		"OUT_FOR_DELIVERY",
+		"IN_TRANSIT",
+		"ASSIGNED",
+		"CANCELLED",
+	]),
 	note: z.string().trim().min(1, "Note is required").max(500, "Note cannot exceed 500 characters"),
 });
 

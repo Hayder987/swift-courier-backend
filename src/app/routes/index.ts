@@ -17,6 +17,6 @@ router.use("/shipments", shipmentRoutes);
 router.use("/employee", employeeRoutes);
 router.use("/zones", zoneRoutes);
 router.use("/super/admin", superAdminRoutes);
-router.use("/payments", paymentRoutes)
+router.use("/payments", paymentRoutes);
 
 export default router;

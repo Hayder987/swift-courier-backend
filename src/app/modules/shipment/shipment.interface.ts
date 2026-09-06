@@ -1,5 +1,11 @@
 export interface IShipmentStatusAdmin {
-	status: "READY_FOR_PAYMENT" | "OUT_FOR_DELIVERY" | "IN_TRANSIT" | "RETURNED" | "ASSIGNED" | "CANCELLED";
+	status:
+		| "READY_FOR_PAYMENT"
+		| "OUT_FOR_DELIVERY"
+		| "IN_TRANSIT"
+		| "RETURNED"
+		| "ASSIGNED"
+		| "CANCELLED";
 	note: string;
 }
 

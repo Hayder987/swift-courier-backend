@@ -1,15 +1,15 @@
 import { prisma } from "../../lib/prisma";
 
 export const getRandomAvailableCourier = async (zoneId: string) => {
-  const [randomCourier] = await prisma.$queryRaw<
-    {
-      userId: string;
-      employeeId: string;
-      courierId: string;
-      name: string;
-      email: string;
-    }[]
-  >`
+	const [randomCourier] = await prisma.$queryRaw<
+		{
+			userId: string;
+			employeeId: string;
+			courierId: string;
+			name: string;
+			email: string;
+		}[]
+	>`
     SELECT
       u.id AS "userId",
       e.id AS "employeeId",
@@ -28,5 +28,5 @@ export const getRandomAvailableCourier = async (zoneId: string) => {
     LIMIT 1;
   `;
 
-  return randomCourier;
+	return randomCourier;
 };

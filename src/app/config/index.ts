@@ -56,5 +56,5 @@ export default {
 	geoapify_map_url: process.env.GEOAPIFY_URL || "https://maps.geoapify.com",
 
 	stripe_secret_key: process.env.STRIPE_SECRET_KEY!,
-    stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!,
+	stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!,
 };

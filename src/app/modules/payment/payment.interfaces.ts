@@ -1,4 +1,3 @@
-
 export interface ICreateCheckoutSession {
-  shipmentId: string;
+	shipmentId: string;
 }

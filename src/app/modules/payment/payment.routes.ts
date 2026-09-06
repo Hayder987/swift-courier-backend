@@ -8,10 +8,12 @@ import { paymentController } from "./payment.controller";
 const router = Router();
 
 router.post(
-  "/create",
-  auth(UserRole.CUSTOMER),
-  validateRequest(createCheckoutSessionValidationSchema),
-  paymentController.createCheckoutSession,
+	"/create",
+	auth(UserRole.CUSTOMER),
+	validateRequest(createCheckoutSessionValidationSchema),
+	paymentController.createCheckoutSession,
 );
+
+router.post("/webhook", paymentController.handleWebhook);
 
 export const paymentRoutes = router;

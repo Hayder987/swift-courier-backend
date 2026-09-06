@@ -154,24 +154,24 @@ const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, u
 							},
 						},
 					},
-          include : {
-           pickupZone : {
-            select : {
-              id : true,
-              name : true,
-              code : true,
-              address : true,
-            }
-           },
-           deliveryZone : {
-            select : {
-              id : true,
-              name : true,
-              code : true,
-              address : true,
-            }
-           }
-          },
+					include: {
+						pickupZone: {
+							select: {
+								id: true,
+								name: true,
+								code: true,
+								address: true,
+							},
+						},
+						deliveryZone: {
+							select: {
+								id: true,
+								name: true,
+								code: true,
+								address: true,
+							},
+						},
+					},
 					omit: {
 						imagePublicId: true,
 					},
@@ -231,32 +231,31 @@ const updateShipmentByAdmin = async (
 					id: shipmentId,
 					type: ShipmentType.NEW,
 				},
-        include : {
-          pickupZone : {
-            select : {
-              id : true,
-              name : true,
-              code : true,
-              address : true,
-            }
-          },
-          deliveryZone : {
-            select : {
-              id : true,
-              name : true,
-              code : true,
-              address : true,
-            }
-          },
-		  customer : {
-			select : {
-				id : true,
-				name : true,
-				email : true,
-			}
-		  } 
-
-        }
+				include: {
+					pickupZone: {
+						select: {
+							id: true,
+							name: true,
+							code: true,
+							address: true,
+						},
+					},
+					deliveryZone: {
+						select: {
+							id: true,
+							name: true,
+							code: true,
+							address: true,
+						},
+					},
+					customer: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+				},
 			});
 
 			if (!isExists) {
@@ -266,7 +265,6 @@ const updateShipmentByAdmin = async (
 			if (isExists.status === ShipmentStatus.CANCELLED) {
 				throw new AppError(httpStatus.BAD_REQUEST, "Shipment Already Cancelled!");
 			}
-
 
 			if (payload.status === isExists.status) {
 				throw new AppError(
@@ -313,7 +311,6 @@ const updateShipmentByAdmin = async (
 						},
 					},
 				});
-
 
 				const templateData = {
 					name: isExists?.customer?.name,
@@ -385,13 +382,13 @@ const updateShipmentByCourier = async (
 					id: true,
 					status: true,
 					customerId: true,
-					customer : {
-						select :{
-							id : true,
-							name : true,
-							email : true,
-						}
-					}
+					customer: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
 				},
 			});
 
