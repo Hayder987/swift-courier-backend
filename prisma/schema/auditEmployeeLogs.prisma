@@ -1,16 +1,16 @@
 model AuditLog {
-  id          String        @id @default(uuid()) @db.Uuid
-  userId      String        @db.Uuid
-  action      AuditAction
-  type        AuditType     @default(CURRENT)
-  resource    AuditResource
-  resourceId  String?       @db.Uuid
-  description String?
-  metadata    Json?
-  createdAt   DateTime      @default(now())
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @db.Uuid
+  action            AuditAction
+  type              AuditType     @default(CURRENT)
+  resource          AuditResource
+  resourceId        String?       @db.Uuid
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
   onboardingOldTime DateTime?
-  
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([action])
