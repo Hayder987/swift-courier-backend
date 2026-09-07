@@ -34,6 +34,14 @@ import { getZoneInfo } from "../../utils/zone-utils/getZoneInfo";
 import { reverseGeocode } from "../../utils/reverseGeocoding";
 import { getRandomAvailableCourier } from "./shipment.utils";
 import { ShipmentWhereInput } from "../../../generated/prisma/models";
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  subWeeks,
+  subDays,
+} from "date-fns";
 
 // create shipment by customer
 const createShipment = async (
@@ -747,15 +755,12 @@ const getShipmentById = async (shipmentId: string) => {
 };
 
 // get all shipment
-const getAllShipments = async (
-  query: IQuery,
-) => {
+const getAllShipments = async (query: IQuery) => {
   const page = query.page ? Number(query.page) : 1;
   const limit = query.limit ? Number(query.limit) : 20;
   const skip = (page - 1) * limit;
   const sortBy = query.sortBy || "createdAt";
-  const sortOrder =
-    query.sortOrder === "asc" ? "asc" : "desc";
+  const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
 
   const andConditions: ShipmentWhereInput[] = [];
 
@@ -784,12 +789,42 @@ const getAllShipments = async (
     });
   }
 
+  if (query.dateFilter === "today") {
+    andConditions.push({
+      createdAt: {
+        gte: startOfDay(new Date()),
+        lte: endOfDay(new Date()),
+      },
+    });
+  }
+
+  if (query.dateFilter === "yesterday") {
+    const yesterday = subDays(new Date(), 1);
+
+    andConditions.push({
+      createdAt: {
+        gte: startOfDay(yesterday),
+        lte: endOfDay(yesterday),
+      },
+    });
+  }
+
+  if (query.dateFilter === "last_week") {
+    const lastWeek = subWeeks(new Date(), 1);
+
+    andConditions.push({
+      createdAt: {
+        gte: startOfWeek(lastWeek, { weekStartsOn: 1 }),
+        lte: endOfWeek(lastWeek, { weekStartsOn: 1 }),
+      },
+    });
+  }
+
   if (query.pickupZoneId) {
     andConditions.push({
       pickupZoneId: query.pickupZoneId,
     });
   }
-
 
   if (query.deliveryZoneId) {
     andConditions.push({
@@ -803,7 +838,6 @@ const getAllShipments = async (
           AND: andConditions,
         }
       : {};
-
 
   const [result, total] = await Promise.all([
     prisma.shipment.findMany({
@@ -847,7 +881,7 @@ const getAllShipments = async (
         pickupZone: {
           select: {
             id: true,
-            code : true,
+            code: true,
             name: true,
           },
         },
@@ -855,7 +889,7 @@ const getAllShipments = async (
         deliveryZone: {
           select: {
             id: true,
-            code : true,
+            code: true,
             name: true,
           },
         },
@@ -887,8 +921,6 @@ const getAllShipments = async (
   };
 };
 
-
-
 // export shipment services
 export const shipmentServices = {
   createShipment,
@@ -896,5 +928,5 @@ export const shipmentServices = {
   updateShipmentByCourier,
   assignCourierOnShipment,
   getShipmentById,
-  getAllShipments
+  getAllShipments,
 };
