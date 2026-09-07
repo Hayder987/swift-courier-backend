@@ -82,10 +82,29 @@ const assignCourier = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get shipment by id
+const getShipmentById = catchAsync(
+  async (req: Request, res: Response) => {
+    const { shipmentId } = req.params;
+
+    const result = await shipmentServices.getShipmentById(
+      shipmentId as string,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Shipment Retrieved Successfully!",
+      data: result,
+    });
+  },
+);
+
 // export shipment controller
 export const shipmentController = {
 	createShipment,
 	updateShipmentStatus,
 	updateShipmentStatusCourier,
 	assignCourier,
+	getShipmentById
 };

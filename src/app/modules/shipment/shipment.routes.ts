@@ -35,4 +35,10 @@ router.patch(
 //shipment update by admin
 router.patch("/assign/:id", auth(UserRole.ADMIN), shipmentController.assignCourier);
 
+router.get(
+  "/shipment/:shipmentId",
+  auth(UserRole.ADMIN, UserRole.COURIER, UserRole.SUPER_ADMIN),
+  shipmentController.getShipmentById,
+);
+
 export const shipmentRoutes = router;
