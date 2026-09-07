@@ -3,6 +3,7 @@ import config from "./app/config";
 import { transporter } from "./app/lib/nodemailer";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
+import { startSalaryEmailWorker } from "./app/utils/email/email.worker";
 import { seedSuperAdmin, seedTestAdmin, seedTestCourier } from "./app/utils/seed";
 
 const PORT = config.port;
@@ -20,6 +21,9 @@ const main = async () => {
 		// connect nodemailer
 		await transporter.verify();
 		console.log("Nodemailer Connected Successfully.");
+
+		// corn jobs
+		startSalaryEmailWorker();
 
 		// seed superAdmin
 		await seedSuperAdmin();
