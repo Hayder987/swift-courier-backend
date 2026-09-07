@@ -2,7 +2,7 @@ import {
   CourierAvailability,
   EarningType,
 } from "./../../../generated/prisma/enums";
-import type { IReqUserPayload } from "./../../interfaces/index";
+import type { IQuery, IReqUserPayload } from "./../../interfaces/index";
 import httpStatus from "http-status";
 import sharp from "sharp";
 import { generateTrackingNumber } from "../../utils/generateTrackingNumber";
@@ -33,6 +33,7 @@ import { geocodeAddress } from "../../utils/zone-utils/geoapify";
 import { getZoneInfo } from "../../utils/zone-utils/getZoneInfo";
 import { reverseGeocode } from "../../utils/reverseGeocoding";
 import { getRandomAvailableCourier } from "./shipment.utils";
+import { ShipmentWhereInput } from "../../../generated/prisma/models";
 
 // create shipment by customer
 const createShipment = async (
@@ -745,6 +746,147 @@ const getShipmentById = async (shipmentId: string) => {
   return shipment;
 };
 
+// get all shipment
+const getAllShipments = async (
+  query: IQuery,
+) => {
+  const page = query.page ? Number(query.page) : 1;
+  const limit = query.limit ? Number(query.limit) : 20;
+  const skip = (page - 1) * limit;
+  const sortBy = query.sortBy || "createdAt";
+  const sortOrder =
+    query.sortOrder === "asc" ? "asc" : "desc";
+
+  const andConditions: ShipmentWhereInput[] = [];
+
+  if (query.searchTerm) {
+    andConditions.push({
+      OR: [
+        {
+          trackingNumber: {
+            contains: query.searchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          parcelName: {
+            contains: query.searchTerm,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
+
+  if (query.status) {
+    andConditions.push({
+      status: query.status as ShipmentStatus,
+    });
+  }
+
+  if (query.pickupZoneId) {
+    andConditions.push({
+      pickupZoneId: query.pickupZoneId,
+    });
+  }
+
+
+  if (query.deliveryZoneId) {
+    andConditions.push({
+      deliveryZoneId: query.deliveryZoneId,
+    });
+  }
+
+  const whereConditions: ShipmentWhereInput =
+    andConditions.length > 0
+      ? {
+          AND: andConditions,
+        }
+      : {};
+
+
+  const [result, total] = await Promise.all([
+    prisma.shipment.findMany({
+      where: whereConditions,
+
+      skip,
+      take: limit,
+
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+
+        pickupCourier: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+
+        deliveryCourier: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+
+        pickupZone: {
+          select: {
+            id: true,
+            code : true,
+            name: true,
+          },
+        },
+
+        deliveryZone: {
+          select: {
+            id: true,
+            code : true,
+            name: true,
+          },
+        },
+
+        tracking: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+        },
+      },
+    }),
+
+    prisma.shipment.count({
+      where: whereConditions,
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+    data: result,
+  };
+};
+
 
 
 // export shipment services
@@ -754,4 +896,5 @@ export const shipmentServices = {
   updateShipmentByCourier,
   assignCourierOnShipment,
   getShipmentById,
+  getAllShipments
 };
