@@ -38,7 +38,6 @@ const handleWebhook = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllPayment = catchAsync(async (req: Request, res: Response) => {
-
 	const result = await paymentService.getAllPayment(req.query);
 
 	sendResponse(res, {
@@ -53,5 +52,5 @@ const getAllPayment = catchAsync(async (req: Request, res: Response) => {
 export const paymentController = {
 	createCheckoutSession,
 	handleWebhook,
-    getAllPayment
+	getAllPayment,
 };

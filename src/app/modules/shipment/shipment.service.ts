@@ -1,3 +1,4 @@
+import { CourierAvailability, EarningType } from "./../../../generated/prisma/enums";
 import type { IReqUserPayload } from "./../../interfaces/index";
 import httpStatus from "http-status";
 import sharp from "sharp";
@@ -22,6 +23,7 @@ import { sendTemplateEmail } from "../../services/sendTemplateEmail";
 import { geocodeAddress } from "../../utils/zone-utils/geoapify";
 import { getZoneInfo } from "../../utils/zone-utils/getZoneInfo";
 import { reverseGeocode } from "../../utils/reverseGeocoding";
+import { getRandomAvailableCourier } from "./shipment.utils";
 
 // create shipment by customer
 const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, userId: string) => {
@@ -493,9 +495,126 @@ const updateShipmentByCourier = async (
 	return transactionResult;
 };
 
+// assign courier
+const assignCourierOnShipment = async (user: IReqUserPayload, shipmentId: string) => {
+	const transactionResult = await prisma.$transaction(
+		async (tx) => {
+			const isExists = await tx.shipment.findUnique({
+				where: {
+					id: shipmentId,
+				},
+				select: {
+					id: true,
+					status: true,
+					customerId: true,
+					pickupZoneId: true,
+					deliveryZoneId: true,
+					customer: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+				},
+			});
+
+			if (!isExists) {
+				throw new AppError(httpStatus.NOT_FOUND, "Shipment Not Found");
+			}
+
+			if (isExists.status === ShipmentStatus.CANCELLED) {
+				throw new AppError(httpStatus.BAD_REQUEST, "Shipment Already Cancelled!");
+			}
+
+			if (isExists.status !== ShipmentStatus.PENDING) {
+				throw new AppError(httpStatus.BAD_REQUEST, "Only Pending Shipment Can be Assign!");
+			}
+
+			if (user.role !== UserRole.ADMIN) {
+				throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission!");
+			}
+
+			if (!isExists.pickupZoneId || !isExists.deliveryZoneId) {
+				throw new AppError(httpStatus.BAD_REQUEST, "Pickup and Delivery Zone are required!");
+			}
+
+			const picupZoneRandomCourier = await getRandomAvailableCourier(isExists.pickupZoneId);
+			const deliveryZoneRandomCourier = await getRandomAvailableCourier(isExists.deliveryZoneId);
+      console.log({picupZoneRandomCourier, deliveryZoneRandomCourier})
+
+			if (!picupZoneRandomCourier || !deliveryZoneRandomCourier) {
+				throw new AppError(httpStatus.NOT_FOUND, "No Available Courier Found!");
+			}
+
+			const result = await tx.shipment.update({
+				where: {
+					id: isExists.id,
+				},
+				data: {
+					status: ShipmentStatus.ASSIGNED,
+					pickupCourierId: picupZoneRandomCourier.userId,
+					deliveryCourierId: deliveryZoneRandomCourier.userId,
+					tracking: {
+						create: {
+							updatedById: user.id,
+							status: ShipmentStatus.ASSIGNED,
+							note: "Assign Courier On this Shipment",
+						},
+					},
+				},
+			});
+
+			await tx.notification.create({
+				data: {
+					title: "This Shipment Assign You As Pickup Courier",
+					message: `Connected Customer Quickly For Pickup Shipment`,
+					type: NotificationType.SHIPMENT,
+					userId: picupZoneRandomCourier.userId,
+					notificationDeadline: notificationDeadline,
+				},
+			});
+
+			await tx.notification.create({
+				data: {
+					title: "This Shipment Assign You As Delivery Courier",
+					message: `You Receive This Shipment Into 2 Days`,
+					type: NotificationType.SHIPMENT,
+					userId: deliveryZoneRandomCourier.userId,
+					notificationDeadline: notificationDeadline,
+				},
+			});
+
+			await tx.auditLog.create({
+				data: {
+					userId: user.id,
+					action: AuditAction.ASSIGN,
+					resource: AuditResource.SHIPMENT,
+					resourceId: shipmentId,
+					description: "Assign Courier On This Shipment",
+					onboardingOldTime: onboardingAuditOldDeadline,
+					metadata: {
+						prevStatus: "PENDING",
+						assignPickupCourier: picupZoneRandomCourier.userId,
+						assigndeliveryCourierId: deliveryZoneRandomCourier.userId,
+					},
+				},
+			});
+
+			return result;
+		},
+		{
+			maxWait: 15000,
+			timeout: 20000,
+		},
+	);
+	return transactionResult;
+};
+
 // export shipment services
 export const shipmentServices = {
 	createShipment,
 	updateShipmentByAdmin,
 	updateShipmentByCourier,
+	assignCourierOnShipment,
 };

@@ -67,9 +67,25 @@ const updateShipmentStatusCourier = catchAsync(async (req: Request, res: Respons
 	});
 });
 
+// update status by admin
+const assignCourier = catchAsync(async (req: Request, res: Response) => {
+	const user = req.user!;
+	const shipmentId = req.params.id;
+
+	const result = await shipmentServices.assignCourierOnShipment(user, shipmentId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `SuccessFully Assign Courier On this Shipment!`,
+		data: result,
+	});
+});
+
 // export shipment controller
 export const shipmentController = {
 	createShipment,
 	updateShipmentStatus,
 	updateShipmentStatusCourier,
+	assignCourier,
 };

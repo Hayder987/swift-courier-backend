@@ -32,4 +32,7 @@ router.patch(
 	shipmentController.updateShipmentStatusCourier,
 );
 
+//shipment update by admin
+router.patch("/assign/:id", auth(UserRole.ADMIN), shipmentController.assignCourier);
+
 export const shipmentRoutes = router;
