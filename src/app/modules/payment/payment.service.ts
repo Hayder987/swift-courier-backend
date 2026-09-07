@@ -11,8 +11,8 @@ import {
 	handleCheckoutExpired,
 	handlePaymentFailed,
 } from "./payment.utils";
-import { IQuery } from "../../interfaces";
-import { PaymentWhereInput } from "../../../generated/prisma/models";
+import type { IQuery } from "../../interfaces";
+import type { PaymentWhereInput } from "../../../generated/prisma/models";
 import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 
 // create checkout session
