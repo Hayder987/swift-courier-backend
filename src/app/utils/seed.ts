@@ -219,7 +219,7 @@ export const seedTestCourier = async () => {
 								email,
 								vehicleLicenseNumber: "Trx-1125252",
 								qualifications: "Msc",
-								zoneId: "02cea330-6873-4384-b49e-d8a816d8110e",
+								zoneId: "08163601-d304-4c24-998f-8c7d631275a0",
 								applicationStatus: ApplicationStatus.APPROVED,
 							},
 						},

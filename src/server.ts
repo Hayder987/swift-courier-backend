@@ -28,7 +28,8 @@ const main = async () => {
 		notificationCleanupCron();
 		// seed superAdmin
 		await seedSuperAdmin();
-		await seedTestAdmin(), await seedTestCourier();
+		await seedTestAdmin();
+		await seedTestCourier();
 
 		app.listen(PORT, () => {
 			console.log(`Server is running on port ${PORT} SuccessFully!`);

@@ -20,3 +20,5 @@ pnpm-workspace.yaml
 .agents
 .claude
 .windsurf
+
+.vercel
