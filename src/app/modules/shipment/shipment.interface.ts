@@ -7,7 +7,7 @@ export interface IShipmentStatusAdmin {
 		| "ASSIGNED"
 		| "CANCELLED"
 		| "DELIVERED"
-		| "DELIVERY_FAILED"
+		| "DELIVERY_FAILED";
 
 	note: string;
 }

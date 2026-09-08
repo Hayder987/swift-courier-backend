@@ -25,7 +25,7 @@ const main = async () => {
 
 		// corn jobs
 		startSalaryEmailWorker();
-        notificationCleanupCron()
+		notificationCleanupCron();
 		// seed superAdmin
 		await seedSuperAdmin();
 		await seedTestAdmin(), await seedTestCourier();
