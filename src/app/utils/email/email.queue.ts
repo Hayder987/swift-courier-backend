@@ -1,5 +1,5 @@
 import { redisClient } from "../../lib/redis";
-import { ISalaryEmailData } from "../../modules/payroll/payroll.interface";
+import type { ISalaryEmailData } from "../../modules/payroll/payroll.interface";
 
 export const addSalaryEmailToQueue = async (data: ISalaryEmailData) => {
 	try {

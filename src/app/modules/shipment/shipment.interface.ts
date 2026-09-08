@@ -5,7 +5,10 @@ export interface IShipmentStatusAdmin {
 		| "IN_TRANSIT"
 		| "RETURNED"
 		| "ASSIGNED"
-		| "CANCELLED";
+		| "CANCELLED"
+		| "DELIVERED"
+		| "DELIVERY_FAILED"
+
 	note: string;
 }
 

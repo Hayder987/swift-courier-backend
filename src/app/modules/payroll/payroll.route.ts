@@ -22,11 +22,7 @@ router.get(
 );
 
 // All paid salaries
-router.get(
-	"/paid",
-	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-	payrollController.getPaidSalary,
-);
+router.get("/paid", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), payrollController.getPaidSalary);
 
 // Pay salary
 router.patch(

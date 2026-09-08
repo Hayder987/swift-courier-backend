@@ -34,6 +34,8 @@ const shipmentStatusAdminZodSchema = z.object({
 		"IN_TRANSIT",
 		"ASSIGNED",
 		"CANCELLED",
+		"DELIVERY_FAILED",
+		"DELIVERED"
 	]),
 	note: z.string().trim().min(1, "Note is required").max(500, "Note cannot exceed 500 characters"),
 });

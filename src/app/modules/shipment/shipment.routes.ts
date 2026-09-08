@@ -30,7 +30,7 @@ router.patch(
 //shipment update by courier
 router.patch(
 	"/courier-status/:id",
-	validateRequest(shipmentValidation.shipmentStatusAdminZodSchema),
+	validateRequest(shipmentValidation.shipmentStatusCourierZodSchema),
 	auth(UserRole.COURIER),
 	shipmentController.updateShipmentStatusCourier,
 );
