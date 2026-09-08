@@ -1,0 +1,2122 @@
+{
+  "info": {
+    "_postman_id": "f38ca83a-4a4a-43e3-9d9a-cfcda27657a7",
+    "name": "Swift_Courier_System_Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51446211",
+    "_collection_link": "https://go.postman.co/collection/51446211-f38ca83a-4a4a-43e3-9d9a-cfcda27657a7?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Google Login",
+          "item": [
+            {
+              "name": "Google Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"idToken\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/google",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "google"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Register Customer User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"hayder ali\",\r\n  \"email\": \"hayderbd095@gmail.com\",\r\n  \"password\": \"User@1234\",\r\n  \"phone\": \"+8801700000000\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sign-up",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sign-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"accessToken\",\r",
+                  "    response.data.accessToken\r",
+                  ");\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"refreshToken\",\r",
+                  "    response.data.refreshToken\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"hayderbd095@gmail.com\",\r\n    \"otp\": \"115696\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"hayderbd095@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Expected: **200**. Sends a 6-digit OTP to the given email for use with **Reset Password**."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"hayderbd095@gmail.com\",\n    \"newPassword\": \"User@1234\",\n    \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Expected: **200**. Verifies the OTP sent by **Forgot Password** and updates the account's password."
+          },
+          "response": []
+        },
+        {
+          "name": "Resend OTP Email OR Forgot",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"hayderbd095@gmail.com\",\r\n    \"emailVerifyOtp\" : false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.environment.set(",
+                  "    \"accessToken\",",
+                  "    response.data.accessToken",
+                  ");",
+                  "",
+                  "pm.environment.set(",
+                  "    \"refreshToken\",",
+                  "    response.data.refreshToken",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"hayderbd095@gmail.com\",\n    \"password\": \"User@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Expected: **200** with `data: { accessToken, refreshToken }` (also set as cookies).\n\nOther outcomes:\n- unknown email → 404\n- `status: BLOCKED` → 403\n- deleted account → 404\n- Google-only account (no password set) → 400\n- wrong password → 401"
+          },
+          "response": []
+        },
+        {
+          "name": "RefreshToken To AccessToken",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Cahnge My User Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"currentPassword\": \"User@1234\",\r\n    \"newPassword\": \"User@12345\",\r\n    \"reEnterNewPassword\": \"User@12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My RealTime Location Update",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"latitude\": \"24.034445\",\r\n  \"longitude\": \"89.272600\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/my-live-location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "my-live-location"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/user/1e34141c-620b-450b-ad28-97ffe7e2c026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "1e34141c-620b-450b-ad28-97ffe7e2c026"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/all-user?page=1&limit=15&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "all-user"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "15"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "role",
+                  "value": "CUSTOMER",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "authMethod",
+                  "value": "CREDENTIALS",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "isEmployee",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Profile Image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profileImage",
+                  "type": "file",
+                  "uuid": "a1b2c3d4-0000-4000-8000-000000000001",
+                  "src": "/C:/Users/hayde/Downloads/images (1).jpeg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/profile-image",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "profile-image"
+              ]
+            },
+            "description": "Expected: **200**. Any authenticated role. Uploads `profileImage` to Cloudinary, updates `user.imageUrl`/`imagePublicId`, and deletes the previous image from Cloudinary if one existed. Update the `src` path to a real image file on your machine before sending."
+          },
+          "response": []
+        },
+        {
+          "name": "User Soft Delete By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/user/b0779026-572e-484f-b5e4-fb2fee2a59b5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "b0779026-572e-484f-b5e4-fb2fee2a59b5"
+              ]
+            },
+            "description": "Expected: **200**. Any authenticated role. Uploads `profileImage` to Cloudinary, updates `user.imageUrl`/`imagePublicId`, and deletes the previous image from Cloudinary if one existed. Update the `src` path to a real image file on your machine before sending."
+          },
+          "response": []
+        },
+        {
+          "name": "Change User Status Supense And Active By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"SUSPENDED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/user/e35e78f1-490a-4351-be1d-6174ce09a2ad/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "e35e78f1-490a-4351-be1d-6174ce09a2ad",
+                "status"
+              ]
+            },
+            "description": "Expected: **200**. Any authenticated role. Uploads `profileImage` to Cloudinary, updates `user.imageUrl`/`imagePublicId`, and deletes the previous image from Cloudinary if one existed. Update the `src` path to a real image file on your machine before sending."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Location Services",
+      "item": [
+        {
+          "name": "Generate Live Location",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"latitude\": \"24.3715513\",\r\n  \"longitude\": \"88.5921038\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/location/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "location",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete My Location",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/location/my-location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "location",
+                "my-location"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Location Ongoing By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/location/share/c864b409-d00e-44a5-9fc7-46d51eebeecc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "location",
+                "share",
+                "c864b409-d00e-44a5-9fc7-46d51eebeecc"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shipment",
+      "item": [
+        {
+          "name": "Create Shipment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ItemsImage",
+                  "type": "file",
+                  "uuid": "eb0f8ba8-8c47-4d0c-a546-a130b6fd167f",
+                  "src": "/C:/Users/hayde/Downloads/asus-4090.avif"
+                },
+                {
+                  "key": "data",
+                  "value": "{\n  \"parcelName\": \"RTX 4090 Graphics Card\",\n  \"description\": \"My used graphics card to sell\",\n  \"parcelWeightGM\": \"1800\",\n  \"pickupLat\": \"24.3636\",\n  \"pickupLng\": \"88.6241\",\n  \"deliveryAddress\": \"Mirpur 10, Dhaka\"\n}\n",
+                  "type": "text",
+                  "uuid": "cb4e4e4e-5433-4e6f-965b-e23cf5f87cde"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status By Courier",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\" : \"PICKED_UP\",\r\n    \"note\" : \"Shipment Picked up\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/courier-status/d652e5e3-a5a5-403f-a4e1-458e09410c5d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments",
+                "courier-status",
+                "d652e5e3-a5a5-403f-a4e1-458e09410c5d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\" : \"READY_FOR_PAYMENT\",\r\n    \"note\" : \"Shipment Approved Please Make Payment\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/admin-status/6d70fc8b-16c9-4f19-be71-392134d3dd7d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments",
+                "admin-status",
+                "6d70fc8b-16c9-4f19-be71-392134d3dd7d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Courier By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/assign/6d70fc8b-16c9-4f19-be71-392134d3dd7d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments",
+                "assign",
+                "6d70fc8b-16c9-4f19-be71-392134d3dd7d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment By Id (Not Coustomer)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/shipment/6d70fc8b-16c9-4f19-be71-392134d3dd7d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments",
+                "shipment",
+                "6d70fc8b-16c9-4f19-be71-392134d3dd7d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Shipment By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "searchTerm",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "PICKED_UP",
+                  "disabled": true
+                },
+                {
+                  "key": "pickupZoneId",
+                  "value": "28817a51-5f26-4a06-bd37-01d7cd32bc21",
+                  "disabled": true
+                },
+                {
+                  "key": "deliveryZoneId",
+                  "value": "28817a51-5f26-4a06-bd37-01d7cd32bc21",
+                  "disabled": true
+                },
+                {
+                  "key": "dateFilter",
+                  "value": "today",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "NEW",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Shipments",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/my-shipments?limit=20&page=1&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipments",
+                "my-shipments"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "PICKED_UP",
+                  "disabled": true
+                },
+                {
+                  "key": "pickupZoneId",
+                  "value": "28817a51-5f26-4a06-bd37-01d7cd32bc21",
+                  "disabled": true
+                },
+                {
+                  "key": "deliveryZoneId",
+                  "value": "28817a51-5f26-4a06-bd37-01d7cd32bc21",
+                  "disabled": true
+                },
+                {
+                  "key": "dateFilter",
+                  "value": "this_month",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "NEW",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employee",
+      "item": [
+        {
+          "name": "Apply For Courier",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "resume",
+                  "type": "file",
+                  "uuid": "a1b2c3d4-0000-4000-8000-000000000002",
+                  "src": "/C:/Users/hayde/Downloads/myResume (1).pdf"
+                },
+                {
+                  "key": "vehicleDocuments",
+                  "type": "file",
+                  "uuid": "b2a58c8e-ed43-4df3-8024-1310f24a8d0c",
+                  "src": [
+                    "/C:/Users/hayde/Downloads/file-sample_150kB.pdf",
+                    "/C:/Users/hayde/Downloads/sample-local-pdf.pdf"
+                  ]
+                },
+                {
+                  "key": "nationalidPic",
+                  "type": "file",
+                  "uuid": "a1b2c3d4-0000-4000-8000-000000000003",
+                  "src": [
+                    "/C:/Users/hayde/Downloads/national-front.webp",
+                    "/C:/Users/hayde/Downloads/national-id-back.jpg"
+                  ]
+                },
+                {
+                  "key": "data",
+                  "type": "text",
+                  "uuid": "a1b2c3d4-0000-4000-8000-000000000004",
+                  "value": "{\n\"permanentAddress\" : \"pabna sadar, pabna, bangladesh\",\n \"permanentCity\" : \"pabna\",\n \"vehicleLicenseNumber\" : \"58698774585\",\n \"qualifications\" : \"BBA\"\n}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/employee/be-courier",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "employee",
+                "be-courier"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Approved Or Reject By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"status\" : \"REJECTED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/employee/jobs/f0f49031-5df8-4e71-942c-3daa550099a2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "employee",
+                "jobs",
+                "f0f49031-5df8-4e71-942c-3daa550099a2"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Employee Applicant By Admin",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/employee/jobs?page=1&limit=15&sortBy=createdAt&sortOrder=desc&searchTerm=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "employee",
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "15"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "searchTerm",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Employees By Admin",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/employee/all-employee?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "employee",
+                "all-employee"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "employeeStatus",
+                  "value": "ACTIVE",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Employee By Id (Admin)",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/employee/all-employee?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "employee",
+                "all-employee"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "employeeStatus",
+                  "value": "ACTIVE",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin Access",
+      "item": [
+        {
+          "name": "Get All Audit Logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/super/admin/logs?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "super",
+                "admin",
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "type",
+                  "value": "CURRENT",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "action",
+                  "value": "CREATED",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "resource",
+                  "value": "SHIPMENT",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "createdAt",
+                  "value": "thisWeek",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Employee User Admin & Courier (Test)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"hayder dev\",\r\n    \"email\": \"development4290@gmail.com\",\r\n    \"phone\": \"+8801711111111\",\r\n    \"password\": \"User@1234\",\r\n    \"role\": \"COURIER\",\r\n    \"permanentAddress\": \"Pabna Sadar, Pabna\",\r\n    \"permanentCity\": \"Pabna\",\r\n    \"vehicleLicenseNumber\" : \"TRX-5836d9df2dx5\",\r\n    \"qualifications\" : \"Bsc\",\r\n    \"basicSalary\": 15000,\r\n    \"houseAllowance\": 5000,\r\n    \"medicalAllowance\": 2000,\r\n    \"transportAllowance\": 4000,\r\n    \"perDeliveryAmount\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super/admin/create-employee",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "super",
+                "admin",
+                "create-employee"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Admin User Soft",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"hayder dev\",\r\n    \"email\": \"development4290@gmail.com\",\r\n    \"phone\": \"+8801711111111\",\r\n    \"password\": \"User@1234\",\r\n    \"role\": \"COURIER\",\r\n    \"permanentAddress\": \"Pabna Sadar, Pabna\",\r\n    \"permanentCity\": \"Pabna\",\r\n    \"vehicleLicenseNumber\" : \"TRX-5836d9df2dx5\",\r\n    \"qualifications\" : \"Bsc\",\r\n    \"basicSalary\": 15000,\r\n    \"houseAllowance\": 5000,\r\n    \"medicalAllowance\": 2000,\r\n    \"transportAllowance\": 4000,\r\n    \"perDeliveryAmount\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super/admin/69d5fa08-4373-46e2-978a-96de60992cae",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "super",
+                "admin",
+                "69d5fa08-4373-46e2-978a-96de60992cae"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zones",
+      "item": [
+        {
+          "name": "Create Zone By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Pabna\",\r\n    \"address\": \"Pabna, Bangladesh\",\r\n    \"radiusKm\": 40\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/zones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "zones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Zone By Id Public",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/zones/393b214c-0570-47c7-aeed-97a81705cd77",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "zones",
+                "393b214c-0570-47c7-aeed-97a81705cd77"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Zone Public",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/zones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "zones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Zone By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Rangpur\",\r\n    \"code\": \"RAN\",\r\n    \"address\": \"Rangpur, Bangladesh\",\r\n    \"radiusKm\": 90\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/zones/393b214c-0570-47c7-aeed-97a81705cd77",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "zones",
+                "393b214c-0570-47c7-aeed-97a81705cd77"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Zone By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/zones/bdd23faa-995e-49ad-99ce-98516e05744a",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "zones",
+                "bdd23faa-995e-49ad-99ce-98516e05744a"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Api Test",
+      "item": [
+        {
+          "name": "Test Api",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create CheckOut Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"shipmentId\" : \"d652e5e3-a5a5-403f-a4e1-458e09410c5d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/all-payments?page=1&limit=20&sortBy=createdAt&sortOrder=desc&createdAt=thisWeek",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "all-payments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "createdAt",
+                  "value": "thisWeek"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payroll",
+      "item": [
+        {
+          "name": "Generate Payroll Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 8,\n  \"year\": 2026,\n  \"bonus\": 0,\n  \"totalDeduction\": 600\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payroll/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payroll",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pay Salary By Super Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentReference\": \"BANK-TXN-20260907-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payroll/e3d93d39-8fd5-4331-bda4-8422ce3b1a7b/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payroll",
+                "e3d93d39-8fd5-4331-bda4-8422ce3b1a7b",
+                "pay"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Salary",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payroll/my-salary?month=9&year=2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payroll",
+                "my-salary"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "9"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Salary By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payroll/paid?page=1&limit=20&month=9&year=2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payroll",
+                "paid"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "month",
+                  "value": "9"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Admin Notifications",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/admin/c23298ce-0658-4843-a630-331da3691603",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "admin",
+                "c23298ce-0658-4843-a630-331da3691603"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Notifications",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "me"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notifications By Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/admin/c23298ce-0658-4843-a630-331da3691603",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "admin",
+                "c23298ce-0658-4843-a630-331da3691603"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete My Notifications",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/me/90ee9ec7-ad8f-44c5-bf7a-f910b959dc8a",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "me",
+                "90ee9ec7-ad8f-44c5-bf7a-f910b959dc8a"
+              ]
+            },
+            "description": "Expected: **200**. `multipart/form-data`: `resume` (single file), `additionalFiles` (up to 10 files), and `data` — a **JSON string** (not a nested form field) matching `ApplyAsDoctorValidationZodSchema`. Creates a `User` (`role: DOCTOR`, random temp password, `needPasswordChange: true`) + `Doctor` row (`verificationStatus: PENDING`), uploads files to Cloudinary, and emails a 6-digit OTP (1 hour TTL) to the doctor's email for **Verify Doctor Email**."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
