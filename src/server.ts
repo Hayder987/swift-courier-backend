@@ -1,5 +1,6 @@
 import app from "./app";
 import config from "./app/config";
+import notificationCleanupCron from "./app/jobs/notificationCleanup.cron";
 import { transporter } from "./app/lib/nodemailer";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
@@ -24,7 +25,7 @@ const main = async () => {
 
 		// corn jobs
 		startSalaryEmailWorker();
-
+        notificationCleanupCron()
 		// seed superAdmin
 		await seedSuperAdmin();
 		await seedTestAdmin(), await seedTestCourier();

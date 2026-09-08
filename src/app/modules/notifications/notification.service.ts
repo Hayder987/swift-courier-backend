@@ -20,13 +20,6 @@ const getAdminNotifications = async () => {
           email: true,
         },
       },
-      shipment: {
-        select: {
-          id: true,
-          trackingId: true,
-          status: true,
-        },
-      },
     },
   });
 
@@ -38,18 +31,12 @@ const getMyNotifications = async (userId: string) => {
   const notifications = await prisma.notification.findMany({
     where: {
       userId,
+      NOT : {
+        type : NotificationType.GENERAL
+      }
     },
     orderBy: {
       createdAt: "desc",
-    },
-    include: {
-      shipment: {
-        select: {
-          id: true,
-          trackingId: true,
-          status: true,
-        },
-      },
     },
   });
 

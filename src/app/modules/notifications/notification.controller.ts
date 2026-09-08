@@ -45,7 +45,9 @@ const deleteMyNotification = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "Notification deleted successfully!",
-    data: result,
+    data: {
+        prevData : result
+      },
   });
 });
 
@@ -60,7 +62,9 @@ const deleteAdminNotification = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: "Notification deleted successfully!",
-      data: result,
+      data: {
+        prevData : result
+      },
     });
   },
 );

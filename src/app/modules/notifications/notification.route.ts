@@ -5,6 +5,7 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
+
 router.get(
   "/admin",
   auth(UserRole.ADMIN),
@@ -27,7 +28,7 @@ router.delete(
 
 
 router.delete(
-  "/:id",
+  "/me/:id",
   auth(UserRole.COURIER, UserRole.CUSTOMER),
   NotificationController.deleteMyNotification,
 );
