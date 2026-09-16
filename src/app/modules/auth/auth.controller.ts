@@ -26,7 +26,7 @@ const verifyEmail = catchAsync(async (req: Request, res: Response) => {
 	const result = await authServices.verifyEmail(payload);
 	const { accessToken, refreshToken } = result;
 
-	await authUtils.setCookieResponse(res, { refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken , accessToken});
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -88,7 +88,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
 	const { accessToken, refreshToken } = result;
 
-	await authUtils.setCookieResponse(res, { refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken , accessToken});
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -108,7 +108,7 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 	const result = await authServices.googleLogin(payload);
 	const { accessToken, refreshToken } = result;
 
-	await authUtils.setCookieResponse(res, { refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken , accessToken});
 
 	sendResponse(res, {
 		success: true,
@@ -127,7 +127,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 	const { accessToken, refreshToken } = await authServices.refreshTokenToAccess(token);
 
-	await authUtils.setCookieResponse(res, { refreshToken });
+	await authUtils.setCookieResponse(res, { refreshToken , accessToken});
 
 	sendResponse(res, {
 		success: true,
