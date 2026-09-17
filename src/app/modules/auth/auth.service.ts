@@ -84,7 +84,7 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 	const redisOtp = await redisClient.get(emailverifyOtpKey);
 
 	if (!redisOtp) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Invalid OTP or OTP has expired");
+		throw new AppError(httpStatus.GONE, "Invalid OTP or OTP has expired");
 	}
 
 	if (redisOtp !== otp) {
@@ -97,10 +97,7 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 	const userRedisPayload = await redisClient.get(customerPayloadKey);
 
 	if (!userRedisPayload) {
-		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			"Verification code expired or registration session not found",
-		);
+		throw new AppError(httpStatus.GONE, "Registration session Expired");
 	}
 
 	const registrationData = JSON.parse(userRedisPayload);
@@ -165,6 +162,8 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 			},
 		},
 	});
+
+	await redisClient.del(customerPayloadKey);
 
 	const templateData = {
 		name: userData?.name,
@@ -296,56 +295,91 @@ const resetPassword = async (payload: IResetPassword) => {
 const resendOtp = async (payload: IResendOtp) => {
 	const { email, emailVerifyOtp } = payload;
 
-	const isUserExist = await prisma.user.findUnique({
-		where: {
-			email,
-		},
-	});
-
-	if (!isUserExist) {
-		throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
-	}
-
-	if (isUserExist.status !== UserStatus.ACTIVE) {
-		throw new AppError(
-			httpStatus.FORBIDDEN,
-			"Your account is suspended or blocked please contact us",
-		);
-	}
-
-	if (emailVerifyOtp && isUserExist.isEmailVerified) {
-		throw new AppError(httpStatus.CONFLICT, "Email is already verified");
-	}
-
-	if (!isUserExist.isEmailVerified) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Email is not verified");
+	// 1. Validate email
+	if (!email) {
+		throw new AppError(httpStatus.BAD_REQUEST, "Email is required");
 	}
 
 	const otp = createOtp();
-
-	const emailverifyOtpKey = `email_verify_otp:${isUserExist.email}`;
-	const forgotKey = `forgot-password-otp:${isUserExist.email}`;
-
 	const expirationSeconds = 5 * 60;
 
-	const key = emailVerifyOtp ? emailverifyOtpKey : forgotKey;
+	if (emailVerifyOtp) {
+		await redisClient.del(`email_verify_otp:${email}`);
 
-	await redisClient.set(key, otp, {
-		expiration: {
-			type: "EX",
-			value: expirationSeconds,
-		},
-	});
+		const customerPayloadKey = `customer_registration_payload:${email}`;
+		const userRedisPayload = await redisClient.get(customerPayloadKey);
 
-	await sendTemplateEmail({
-		to: isUserExist.email,
-		subject: `New Verification OTP For ${emailVerifyOtp ? "Email Verify" : "Forgot Password"}`,
-		templateName: "otp-verification",
-		data: {
-			otp,
-			expirationMinutes: 5,
-		},
-	});
+		if (!userRedisPayload) {
+			throw new AppError(httpStatus.GONE, "Registration session Expired");
+		}
+
+		const emailverifyOtpKey = `email_verify_otp:${email}`;
+
+		// Save new OTP
+		await redisClient.set(emailverifyOtpKey, otp, {
+			expiration: {
+				type: "EX",
+				value: expirationSeconds,
+			},
+		});
+
+		// Send email
+		await sendTemplateEmail({
+			to: email,
+			subject: `New Verification OTP For ${email}`,
+			templateName: "otp-verification",
+			data: {
+				otp,
+				expirationMinutes: 5,
+			},
+		});
+
+		return;
+	}
+
+	if (!emailVerifyOtp) {
+		// 2. Find user
+		const user = await prisma.user.findUnique({
+			where: {
+				email,
+			},
+		});
+
+		if (!user) {
+			throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+		}
+
+		// 3. Check account status
+		if (user.status !== UserStatus.ACTIVE) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"Your account is suspended or blocked. Please contact us",
+			);
+		}
+
+		const redisKey = `forgot-password-otp:${user.email}`;
+
+		// Save new OTP
+		await redisClient.set(redisKey, otp, {
+			expiration: {
+				type: "EX",
+				value: expirationSeconds,
+			},
+		});
+
+		// Send email
+		await sendTemplateEmail({
+			to: user.email,
+			subject: `New Verification OTP For ${email}`,
+			templateName: "otp-verification",
+			data: {
+				otp,
+				expirationMinutes: 5,
+			},
+		});
+
+		return;
+	}
 };
 
 // login platformUser superAdmin by credential

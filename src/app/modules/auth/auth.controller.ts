@@ -8,167 +8,166 @@ import config from "../../config";
 
 // register user as customer
 const registerCustomer = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  await authServices.registerCustomer(payload);
+	await authServices.registerCustomer(payload);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `Verification OTP send to Email: ${payload.email}`,
-    data: null,
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `Verification OTP send to Email: ${payload.email}`,
+		data: null,
+	});
 });
 
 // verify email
 const verifyEmail = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  const result = await authServices.verifyEmail(payload);
-  const { accessToken, refreshToken } = result;
+	const result = await authServices.verifyEmail(payload);
+	const { accessToken, refreshToken } = result;
 
-  await authUtils.setCookieResponse(res, { refreshToken, accessToken });
+	await authUtils.setCookieResponse(res, { refreshToken, accessToken });
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `Verify Email SuccessFull! And Registration SuccessFully!`,
-    data: {
-      accessToken,
-      refreshToken,
-    },
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `Verify Email SuccessFull! And Registration SuccessFully!`,
+		data: {
+			accessToken,
+			refreshToken,
+		},
+	});
 });
 
 // forgot password
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  await authServices.forgotPassword(payload);
+	await authServices.forgotPassword(payload);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `Verification OTP send to Email: ${payload.email}`,
-    data: null,
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `Verification OTP send to Email: ${payload.email}`,
+		data: null,
+	});
 });
 
 // reset password
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  await authServices.resetPassword(payload);
+	await authServices.resetPassword(payload);
 
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "Password Reset successfully!!",
-    data: null,
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Password Reset successfully!!",
+		data: null,
+	});
 });
 
 // resend otp email verify or forgot pass otp
 const resendOtp = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  await authServices.resendOtp(payload);
+	await authServices.resendOtp(payload);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `New Verification OTP Code send to Email: ${payload.email}`,
-    data: null,
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: `New Verification OTP Code send to Email: ${payload.email}`,
+		data: null,
+	});
 });
 
 // login User
 const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await authServices.loginUser(payload);
+	const payload = req.body;
+	const result = await authServices.loginUser(payload);
 
-  const { accessToken, refreshToken } = result;
+	const { accessToken, refreshToken } = result;
 
-  await authUtils.setCookieResponse(res, { refreshToken, accessToken });
+	await authUtils.setCookieResponse(res, { refreshToken, accessToken });
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "User logged in successfully",
-    data: {
-      accessToken,
-      refreshToken,
-    },
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User logged in successfully",
+		data: {
+			accessToken,
+			refreshToken,
+		},
+	});
 });
 
 // google login
 const googleLogin = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+	const payload = req.body;
 
-  const result = await authServices.googleLogin(payload);
-  const { accessToken, refreshToken } = result;
+	const result = await authServices.googleLogin(payload);
+	const { accessToken, refreshToken } = result;
 
-  await authUtils.setCookieResponse(res, { refreshToken, accessToken });
+	await authUtils.setCookieResponse(res, { refreshToken, accessToken });
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Google Auth login successful",
-    data: {
-      accessToken,
-      refreshToken,
-    },
-  });
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatus.OK,
+		message: "Google Auth login successful",
+		data: {
+			accessToken,
+			refreshToken,
+		},
+	});
 });
 
 // refresh token
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const token = req.cookies.refreshToken;
+	const token = req.cookies.refreshToken;
 
-  const { accessToken, refreshToken } =
-    await authServices.refreshTokenToAccess(token);
+	const { accessToken, refreshToken } = await authServices.refreshTokenToAccess(token);
 
-  await authUtils.setCookieResponse(res, { refreshToken, accessToken });
+	await authUtils.setCookieResponse(res, { refreshToken, accessToken });
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.CREATED,
-    message: "New accessToken Generated Successfully!",
-    data: { accessToken, refreshToken },
-  });
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatus.CREATED,
+		message: "New accessToken Generated Successfully!",
+		data: { accessToken, refreshToken },
+	});
 });
 
 //logout
 const logout = catchAsync(async (_req: Request, res: Response) => {
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: config.node_env === "development" ? false : true,
-    sameSite: config.node_env === "development" ? "lax" : "none",
-  });	
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: config.node_env === "development" ? false : true,
-    sameSite: config.node_env === "development" ? "lax" : "none",
-  });
+	res.clearCookie("accessToken", {
+		httpOnly: true,
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
+	});
+	res.clearCookie("refreshToken", {
+		httpOnly: true,
+		secure: config.node_env === "development" ? false : true,
+		sameSite: config.node_env === "development" ? "lax" : "none",
+	});
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Logout Successful",
-    data: null,
-  });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Logout Successful",
+		data: null,
+	});
 });
 
 // export auth controllerS
 export const authController = {
-  registerCustomer,
-  verifyEmail,
-  forgotPassword,
-  resetPassword,
-  resendOtp,
-  loginUser,
-  googleLogin,
-  refreshToken,
-  logout,
+	registerCustomer,
+	verifyEmail,
+	forgotPassword,
+	resetPassword,
+	resendOtp,
+	loginUser,
+	googleLogin,
+	refreshToken,
+	logout,
 };
