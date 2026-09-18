@@ -5,8 +5,8 @@ model Notification {
   type                 NotificationType
   isRead               Boolean          @default(false)
   shipmentId           String?          @db.Uuid
-  userId               String           @db.Uuid
-  user                 User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               String?          @db.Uuid
+  user                 User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
   shipment             Shipment?        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
   notificationDeadline DateTime?
   createdAt            DateTime         @default(now())

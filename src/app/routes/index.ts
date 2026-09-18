@@ -23,6 +23,6 @@ router.use("/super/admin", superAdminRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/payroll", payrollRoutes);
 router.use("/notifications", notificationRoutes);
-router.use("/contacts", ContactRoutes)
+router.use("/contacts", ContactRoutes);
 
 export default router;
