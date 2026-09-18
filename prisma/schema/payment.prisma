@@ -3,12 +3,12 @@ model Payment {
   shipmentId    String          @unique @db.Uuid
   shipment      Shipment        @relation(fields: [shipmentId], references: [id])
   amount        Decimal         @db.Decimal(10, 2)
-  method PaymentMethod @default(CARD)
-  sessionId String?
+  method        PaymentMethod   @default(CARD)
+  sessionId     String?
   provider      PaymentProvider
   status        PaymentStatus   @default(PENDING)
   transactionId String?         @unique
-  paidAt DateTime?
+  paidAt        DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

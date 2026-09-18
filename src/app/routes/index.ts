@@ -9,6 +9,7 @@ import { superAdminRoutes } from "../modules/super-admin/superAdmin.routes";
 import { paymentRoutes } from "../modules/payment/payment.routes";
 import { payrollRoutes } from "../modules/payroll/payroll.route";
 import { notificationRoutes } from "../modules/notifications/notification.route";
+import { ContactRoutes } from "../modules/contact/contact.routes";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/super/admin", superAdminRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/payroll", payrollRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/contacts", ContactRoutes)
 
 export default router;
