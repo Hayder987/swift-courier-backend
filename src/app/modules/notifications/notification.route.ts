@@ -5,20 +5,16 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.get("/admin", auth(UserRole.ADMIN), NotificationController.getAdminNotifications);
-
 router.get(
-	"/me",
-	auth(UserRole.COURIER, UserRole.CUSTOMER),
-	NotificationController.getMyNotifications,
+	"/all-notifications",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER, UserRole.CUSTOMER),
+	NotificationController.getNotifications,
 );
 
-router.delete("/admin/:id", auth(UserRole.ADMIN), NotificationController.deleteAdminNotification);
-
 router.delete(
-	"/me/:id",
-	auth(UserRole.COURIER, UserRole.CUSTOMER),
-	NotificationController.deleteMyNotification,
+	"/:id",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.COURIER, UserRole.CUSTOMER),
+	NotificationController.deleteNotification,
 );
 
 export const notificationRoutes = router;

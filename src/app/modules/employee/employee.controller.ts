@@ -9,7 +9,6 @@ import { AppError } from "../../utils/AppError";
 // apply for courier
 const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 	const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-	console.log({ files });
 	const resume = files?.["resume"] ? files["resume"][0] : null;
 	const vehicleDocuments = files?.["vehicleDocuments"] || [];
 	const nationalidPic = files?.["nationalidPic"] || [];
