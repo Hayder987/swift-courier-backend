@@ -14,6 +14,8 @@ export interface IMySalaryQuery {
 	year?: number;
 }
 
+
+
 export interface IPaidSalaryQuery {
 	month?: number;
 	year?: number;
