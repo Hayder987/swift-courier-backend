@@ -39,8 +39,6 @@ const applyForCourier = async (
 		},
 	});
 
-	console.log(user);
-
 	if (!user) {
 		throw new AppError(httpStatus.CONFLICT, "User Not Found! You Need To Register First");
 	}
@@ -134,6 +132,10 @@ const applyForCourier = async (
 	}
 
 	const zoneInfo = await getZoneInfo(location.latitude, location.longitude);
+
+	if (!zoneInfo) {
+		throw new AppError(httpStatus.NOT_FOUND, "No Zone Match Your Location!");
+	}
 
 	const tarnsactionResult = await prisma.$transaction(
 		async (tx) => {

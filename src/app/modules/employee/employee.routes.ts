@@ -36,7 +36,7 @@ router.post(
 			maxCount: 5,
 		},
 		{
-			name: "nationalidPic",
+			name: "nationalIdPic",
 			maxCount: 2,
 		},
 	]),
