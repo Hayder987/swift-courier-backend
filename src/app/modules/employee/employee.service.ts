@@ -440,6 +440,7 @@ const getAllEmployees = async (query: IQuery) => {
 	const limit = query.limit ? Number(query.limit) : 20;
 	const page = query.page ? Number(query.page) : 1;
 	const skip = (page - 1) * limit;
+
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
@@ -448,6 +449,14 @@ const getAllEmployees = async (query: IQuery) => {
 	if (query.employeeStatus) {
 		andConditions.push({
 			employmentStatus: query.employeeStatus,
+		});
+	}
+
+	if (query.role) {
+		andConditions.push({
+			user: {
+				role: query.role,
+			},
 		});
 	}
 
@@ -461,7 +470,6 @@ const getAllEmployees = async (query: IQuery) => {
 		});
 	}
 
-	//   get all applicant
 	const employees = await prisma.employee.findMany({
 		where: {
 			AND: andConditions.length > 0 ? andConditions : undefined,
@@ -485,6 +493,7 @@ const getAllEmployees = async (query: IQuery) => {
 					qualifications: true,
 					applicationStatus: true,
 					zoneId: true,
+
 					zone: {
 						select: {
 							name: true,
@@ -526,8 +535,8 @@ const getAllEmployees = async (query: IQuery) => {
 	return {
 		data: employees,
 		meta: {
-			page: page,
-			limit: limit,
+			page,
+			limit,
 			total,
 			totalPages: Math.ceil(total / limit),
 		},
