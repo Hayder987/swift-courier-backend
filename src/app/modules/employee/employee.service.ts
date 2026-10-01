@@ -129,7 +129,7 @@ const applyForCourier = async (
 	const location = await geocodeAddress(payload.permanentCity);
 
 	if (!location) {
-		throw new AppError(httpStatus.NOT_FOUND, "Location Not Found!");
+		throw new AppError(httpStatus.NOT_FOUND, "Permanent City Location Not Found! ");
 	}
 
 	const zoneInfo = await getZoneInfo(location.latitude, location.longitude);
