@@ -187,6 +187,20 @@ export const seedTestCourier = async () => {
 		const hashPassword = await passwordHash(password);
 		const employeeCode = await generateEmployeeCode();
 
+		const dhZone = await prisma.zone.findFirst({
+			where: {
+				code: "DHA",
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		if (!dhZone) {
+			console.log("Dhaka Zone Not Found! Create DHA code Zone");
+			return;
+		}
+
 		const testCourier = await prisma.user.create({
 			data: {
 				name,
@@ -219,7 +233,7 @@ export const seedTestCourier = async () => {
 								email,
 								vehicleLicenseNumber: "Trx-1125252",
 								qualifications: "Msc",
-								zoneId: "08163601-d304-4c24-998f-8c7d631275a0",
+								zoneId: dhZone?.id,
 								applicationStatus: ApplicationStatus.APPROVED,
 							},
 						},

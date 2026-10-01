@@ -5,6 +5,7 @@ import { employeeService } from "./employee.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { employeeValidation } from "./employee.validation";
 import { AppError } from "../../utils/AppError";
+import { UserRole } from "../../../generated/prisma/enums";
 
 // apply for courier
 const applyForCourier = catchAsync(async (req: Request, res: Response) => {
@@ -100,6 +101,21 @@ const getEmployeeById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// delete courier by admin panel
+const deleteEmployee = catchAsync(async (req, res) => {
+	const { empId } = req.params;
+	const userRole = req.user?.role;
+
+	await employeeService.deleteEmployee(empId as string, userRole as UserRole);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Employee deleted successfully!",
+		data: null,
+	});
+});
+
 // export courier controller
 export const employeeController = {
 	applyForCourier,
@@ -107,4 +123,5 @@ export const employeeController = {
 	getAllEmployeeApplicant,
 	getAllEmployees,
 	getEmployeeById,
+	deleteEmployee,
 };

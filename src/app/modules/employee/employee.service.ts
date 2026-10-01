@@ -1,3 +1,4 @@
+import { UserRole } from "./../../../generated/prisma/enums";
 import httpStatus from "http-status";
 import type { IQuery, IReqUserPayload } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
@@ -9,9 +10,9 @@ import {
 	ApplicationStatus,
 	AuditAction,
 	AuditResource,
+	CourierAvailability,
 	EmploymentStatus,
 	NotificationType,
-	UserRole,
 	UserStatus,
 } from "../../../generated/prisma/enums";
 import {
@@ -588,6 +589,75 @@ const getEmployeeById = async (empId: string) => {
 	return employee;
 };
 
+// delete courier by admin
+const deleteEmployee = async (empId: string, userRole: UserRole) => {
+	const existingEmployee = await prisma.employee.findFirst({
+		where: {
+			id: empId,
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					role: true,
+				},
+			},
+		},
+	});
+
+	if (!existingEmployee) {
+		throw new AppError(httpStatus.NOT_FOUND, "Employee not found!");
+	}
+
+	// ADMIN cannot delete ADMIN or SUPER_ADMIN
+	if (userRole !== UserRole.SUPER_ADMIN) {
+		if (
+			existingEmployee.user.role === UserRole.ADMIN ||
+			existingEmployee.user.role === UserRole.SUPER_ADMIN
+		) {
+			throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission To Delete This!");
+		}
+	}
+
+	await prisma.$transaction(async (tx) => {
+		// Soft delete user
+		await tx.user.update({
+			where: {
+				id: existingEmployee.userId,
+			},
+			data: {
+				status: UserStatus.DELETED,
+				isDeleted: true,
+				isEmployee: false,
+			},
+		});
+
+		// Terminate employee
+		await tx.employee.update({
+			where: {
+				id: empId,
+			},
+			data: {
+				employmentStatus: EmploymentStatus.TERMINATED,
+				deletedAt: new Date(),
+				onboardingTime: null,
+			},
+		});
+
+		// Terminate courier if employee is a courier
+		if (existingEmployee.user.role === UserRole.COURIER) {
+			await tx.courier.update({
+				where: {
+					employeeId: empId,
+				},
+				data: {
+					courierAvailability: CourierAvailability.TERMINATED,
+				},
+			});
+		}
+	});
+};
+
 // export employee service
 export const employeeService = {
 	applyForCourier,
@@ -595,4 +665,5 @@ export const employeeService = {
 	getAllEmployeeApplicant,
 	getAllEmployees,
 	getEmployeeById,
+	deleteEmployee,
 };

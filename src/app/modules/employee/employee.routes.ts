@@ -46,7 +46,7 @@ router.post(
 router.patch(
 	"/jobs/:id",
 	validateRequest(employeeValidation.approvedCourierZodSchema),
-	auth(UserRole.ADMIN),
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
 	employeeController.approvedCourier,
 );
 
@@ -55,6 +55,12 @@ router.get(
 	"/emp/:id",
 	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
 	employeeController.getEmployeeById,
+);
+
+router.delete(
+	"/emp/:empId",
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+	employeeController.deleteEmployee,
 );
 
 // employee export routes
