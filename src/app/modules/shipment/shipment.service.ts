@@ -39,6 +39,15 @@ import {
 	endOfYear,
 } from "date-fns";
 
+type ShipmentApprovalEmailData = {
+	to: string;
+	name: string;
+	parcelName: string;
+	serviceCharge: number;
+	deliveryFee: number;
+	distance: number;
+};
+
 // create shipment by customer
 const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, userId: string) => {
 	if (!payload) {
@@ -234,12 +243,60 @@ const createShipment = async (buffer: Buffer, payload: ICreateShipmentPayload, u
 	}
 };
 
-// update shipment status by admin
+// update shipment by admin
 const updateShipmentByAdmin = async (
 	payload: IShipmentStatusAdmin,
 	user: IReqUserPayload,
 	shipmentId: string,
 ) => {
+	const shipment = await prisma.shipment.findUnique({
+		where: {
+			id: shipmentId,
+			type: ShipmentType.NEW,
+		},
+		select: {
+			status: true,
+			pickupLat: true,
+			pickupLng: true,
+			deliveryLat: true,
+			deliveryLng: true,
+			parcelWeightGM: true,
+		},
+	});
+
+	if (!shipment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Shipment Not Found");
+	}
+
+	if (shipment.status === ShipmentStatus.CANCELLED) {
+		throw new AppError(httpStatus.BAD_REQUEST, "Shipment Already Cancelled!");
+	}
+
+	if (payload.status === shipment.status) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			`This Shipment Status Already Updated To ${payload.status}`,
+		);
+	}
+
+	let deliveryInfo: {
+		amount: number;
+		distance: number;
+		serviceCharge: number;
+	} | null = null;
+
+	if (shipment.status === ShipmentStatus.CREATED) {
+		const deliveryInfoPayload = {
+			pickupLat: Number(shipment.pickupLat),
+			pickupLng: Number(shipment.pickupLng),
+			deliveryLat: Number(shipment.deliveryLat),
+			deliveryLng: Number(shipment.deliveryLng),
+			parcelWeightGM: Number(shipment.parcelWeightGM),
+		};
+
+		deliveryInfo = await generateDeliveryFee(deliveryInfoPayload);
+	}
+
 	const transactionResult = await prisma.$transaction(
 		async (tx) => {
 			const isExists = await tx.shipment.findUnique({
@@ -265,6 +322,7 @@ const updateShipmentByAdmin = async (
 							address: true,
 						},
 					},
+
 					customer: {
 						select: {
 							id: true,
@@ -272,6 +330,7 @@ const updateShipmentByAdmin = async (
 							email: true,
 						},
 					},
+
 					deliveryCourier: {
 						select: {
 							employee: {
@@ -300,6 +359,13 @@ const updateShipmentByAdmin = async (
 				throw new AppError(
 					httpStatus.CONFLICT,
 					`This Shipment Status Already Updated To ${payload.status}`,
+				);
+			}
+
+			if (isExists.status !== shipment.status) {
+				throw new AppError(
+					httpStatus.CONFLICT,
+					"Shipment status was changed by another request. Please refresh and try again.",
 				);
 			}
 
@@ -343,61 +409,70 @@ const updateShipmentByAdmin = async (
 			}
 
 			if (isExists.status === ShipmentStatus.CREATED) {
-				const deleveryInfoPayload = {
-					pickupLat: Number(isExists.pickupLat),
-					pickupLng: Number(isExists.pickupLng),
-					deliveryLat: Number(isExists.deliveryLat),
-					deliveryLng: Number(isExists.deliveryLng),
-					parcelWeightGM: Number(isExists.parcelWeightGM),
-				};
-
-				const deleveryInfo = await generateDeliveryFee(deleveryInfoPayload);
+				if (!deliveryInfo) {
+					throw new AppError(
+						httpStatus.INTERNAL_SERVER_ERROR,
+						"Delivery information could not be generated.",
+					);
+				}
 
 				const result = await tx.shipment.update({
 					where: {
 						id: isExists.id,
 					},
+
 					data: {
 						status: ShipmentStatus.READY_FOR_PAYMENT,
-						deliveryFee: deleveryInfo.amount,
-						deliveryDistance: deleveryInfo.distance,
+
+						deliveryFee: deliveryInfo.amount,
+
+						deliveryDistance: deliveryInfo.distance,
+
 						notification: {
 							create: {
 								title: "Shipment Approved By Admin",
+
 								message:
 									"Your Shipment Approved By Swift Courier Service! Payment Info Send To Your Email Make Payment Please!",
+
 								type: NotificationType.SHIPMENT,
+
 								userId: isExists.customer.id,
-								notificationDeadline: notificationDeadline,
+
+								notificationDeadline,
 							},
 						},
+
 						tracking: {
 							create: {
 								updatedById: user.id,
+
 								status: ShipmentStatus.READY_FOR_PAYMENT,
+
 								note: payload.note,
 							},
 						},
 					},
 				});
 
-				const templateData = {
+				const emailData: ShipmentApprovalEmailData = {
+					to: isExists.customer.email,
+
 					name: isExists.customer.name,
+
 					parcelName: result.parcelName,
-					status: ShipmentStatus.READY_FOR_PAYMENT,
-					serviceCharge: deleveryInfo.serviceCharge,
-					deliveryFee: deleveryInfo.amount,
-					distance: deleveryInfo.distance,
+
+					serviceCharge: Number(deliveryInfo.serviceCharge),
+
+					deliveryFee: Number(deliveryInfo.amount),
+
+					distance: Number(deliveryInfo.distance),
 				};
 
-				await sendTemplateEmail({
-					to: isExists.customer.email,
-					subject: "Your Shipment is Approved",
-					templateName: "shipment-status-approved",
-					data: templateData,
-				});
-
-				return result;
+				return {
+					result,
+					emailData,
+				};
 			}
 
 			if (payload.status === ShipmentStatus.ASSIGNED) {
@@ -411,21 +486,30 @@ const updateShipmentByAdmin = async (
 				where: {
 					id: isExists.id,
 				},
+
 				data: {
 					status: payload.status,
+
 					notification: {
 						create: {
 							title: "Shipment Status Updated",
+
 							message: `Your Shipment Processing To ${payload.status}`,
+
 							type: NotificationType.SHIPMENT,
+
 							userId: isExists.customerId,
-							notificationDeadline: notificationDeadline,
+
+							notificationDeadline,
 						},
 					},
+
 					tracking: {
 						create: {
 							updatedById: user.id,
+
 							status: payload.status,
+
 							note: payload.note,
 						},
 					},
@@ -437,10 +521,18 @@ const updateShipmentByAdmin = async (
 					throw new AppError(httpStatus.BAD_REQUEST, "This Shipment Has No Delivery Courier");
 				}
 
+				if (!courierId) {
+					throw new AppError(
+						httpStatus.BAD_REQUEST,
+						"Courier information not found for this shipment.",
+					);
+				}
+
 				await tx.courier.update({
 					where: {
 						id: courierId,
 					},
+
 					data: {
 						courierAvailability: CourierAvailability.BUSY,
 					},
@@ -452,10 +544,18 @@ const updateShipmentByAdmin = async (
 				payload.status === ShipmentStatus.DELIVERY_FAILED
 			) {
 				if (isExists.deliveryCourierId) {
+					if (!courierId) {
+						throw new AppError(
+							httpStatus.BAD_REQUEST,
+							"Courier information not found for this shipment.",
+						);
+					}
+
 					await tx.courier.update({
 						where: {
 							id: courierId,
 						},
+
 						data: {
 							courierAvailability: CourierAvailability.AVAILABLE,
 						},
@@ -463,17 +563,39 @@ const updateShipmentByAdmin = async (
 				}
 			}
 
-			return result;
+			return {
+				result,
+				emailData: null,
+			};
 		},
+
 		{
 			maxWait: 15000,
 			timeout: 20000,
 		},
 	);
 
-	return transactionResult;
-};
+	if (transactionResult.emailData) {
+		await sendTemplateEmail({
+			to: transactionResult.emailData.to,
 
+			subject: "Your Shipment is Approved",
+
+			templateName: "shipment-status-approved",
+
+			data: {
+				name: transactionResult.emailData.name,
+				parcelName: transactionResult.emailData.parcelName,
+				status: ShipmentStatus.READY_FOR_PAYMENT,
+				serviceCharge: transactionResult.emailData.serviceCharge,
+				deliveryFee: transactionResult.emailData.deliveryFee,
+				distance: transactionResult.emailData.distance,
+			},
+		});
+	}
+
+	return transactionResult.result;
+};
 // update shipment status by courier
 const updateShipmentByCourier = async (
 	payload: IShipmentStatusCourier,
@@ -694,7 +816,7 @@ const updateShipmentByCourier = async (
 		},
 		{
 			maxWait: 15000,
-			timeout: 20000,
+			timeout: 25000,
 		},
 	);
 
