@@ -22,6 +22,12 @@ import type { UserWhereInput } from "../../../generated/prisma/models";
 import { createAuditLog } from "../../utils/createAuditLog";
 import type { IChangeUserStatus } from "./user.validation";
 
+type ProfileImageResponse = {
+	id: string;
+	imageUrl: string | null;
+	imagePublicId: string | null;
+};
+
 // change password own user
 const changePassword = async (payload: IChangePassword, userId: string) => {
 	if (!userId) {
@@ -158,6 +164,128 @@ const getMyProfile = async (userId: string) => {
 };
 
 // update user profile image
+// const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
+// 	const currentUser = await prisma.user.findUnique({
+// 		where: {
+// 			id: user.id,
+// 		},
+// 		select: {
+// 			id: true,
+// 			isEmployee: true,
+// 			status: true,
+// 			role: true,
+// 			isDeleted: true,
+// 			employee: {
+// 				select: {
+// 					imageUrl: true,
+// 					imagePublicId: true,
+// 				},
+// 			},
+// 			customer: {
+// 				select: {
+// 					imageUrl: true,
+// 					imagePublicId: true,
+// 				},
+// 			},
+// 		},
+// 	});
+
+// 	if (!currentUser) {
+// 		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+// 	}
+
+// 	if (currentUser.role !== user.role) {
+// 		throw new AppError(httpStatus.FORBIDDEN, "FORBIDDEN: AccessDenied!");
+// 	}
+
+// 	if (currentUser.status !== UserStatus.ACTIVE || currentUser.isDeleted) {
+// 		throw new AppError(
+// 			httpStatus.FORBIDDEN,
+// 			"User Not Active ! SUSPEND OR DELETED, Please Contact Us",
+// 		);
+// 	}
+
+// 	// Compress + resize image
+// 	const compressedBuffer = await sharp(buffer)
+// 		.rotate()
+// 		.resize({
+// 			width: 1200,
+// 			height: 1200,
+// 			fit: "inside",
+// 			withoutEnlargement: true,
+// 		})
+// 		.webp({
+// 			quality: 80,
+// 		})
+// 		.toBuffer();
+
+// 	// cloudinary upload
+// 	const cloudinaryResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+// 		cloudinary.uploader
+// 			.upload_stream(
+// 				{
+// 					resource_type: "auto",
+// 				},
+
+// 				async (error, result) => {
+// 					if (error) {
+// 						return reject(error);
+// 					}
+
+// 					if (!result) {
+// 						return reject(new Error("No result returned from Cloudinary"));
+// 					}
+
+// 					resolve(result);
+// 				},
+// 			)
+// 			.end(compressedBuffer);
+// 	});
+
+// 	let updateProfile = null;
+
+// 	if (currentUser.isEmployee) {
+// 		updateProfile = await prisma.employee.update({
+// 			where: {
+// 				userId: currentUser.id,
+// 			},
+// 			data: {
+// 				imageUrl: cloudinaryResult.secure_url,
+// 				imagePublicId: cloudinaryResult.public_id,
+// 			},
+// 			select: {
+// 				id: true,
+// 				imageUrl: true,
+// 				imagePublicId: true,
+// 			},
+// 		});
+
+// 		if (currentUser.employee?.imagePublicId && currentUser.employee?.imageUrl) {
+// 			await cloudinary.uploader.destroy(currentUser.employee.imagePublicId);
+// 		}
+// 	} else {
+// 		updateProfile = await prisma.customer.update({
+// 			where: {
+// 				userId: currentUser.id,
+// 			},
+// 			data: {
+// 				imageUrl: cloudinaryResult.secure_url,
+// 				imagePublicId: cloudinaryResult.public_id,
+// 			},
+// 			select: {
+// 				id: true,
+// 				imageUrl: true,
+// 				imagePublicId: true,
+// 			},
+// 		});
+
+// 		if (currentUser.customer?.imagePublicId && currentUser.customer?.imageUrl) {
+// 			await cloudinary.uploader.destroy(currentUser.customer.imagePublicId);
+// 		}
+// 	}
+
+// 	return updateProfile;
+// };
 const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 	const currentUser = await prisma.user.findUnique({
 		where: {
@@ -169,12 +297,14 @@ const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 			status: true,
 			role: true,
 			isDeleted: true,
+
 			employee: {
 				select: {
 					imageUrl: true,
 					imagePublicId: true,
 				},
 			},
+
 			customer: {
 				select: {
 					imageUrl: true,
@@ -195,11 +325,13 @@ const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 	if (currentUser.status !== UserStatus.ACTIVE || currentUser.isDeleted) {
 		throw new AppError(
 			httpStatus.FORBIDDEN,
-			"User Not Active ! SUSPEND OR DELETED, Please Contact Us",
+			"User Not Active! SUSPEND OR DELETED, Please Contact Us",
 		);
 	}
 
-	// Compress + resize image
+	// --------------------------------------------------------
+	// Compress + Resize Image
+	// --------------------------------------------------------
 	const compressedBuffer = await sharp(buffer)
 		.rotate()
 		.resize({
@@ -213,15 +345,17 @@ const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 		})
 		.toBuffer();
 
-	// cloudinary upload
+	// --------------------------------------------------------
+	// Upload New Image To Cloudinary
+	// --------------------------------------------------------
 	const cloudinaryResult = await new Promise<UploadApiResponse>((resolve, reject) => {
 		cloudinary.uploader
 			.upload_stream(
 				{
-					resource_type: "auto",
+					resource_type: "image",
+					folder: "swiftcourier/profile-images",
 				},
-
-				async (error, result) => {
+				(error, result) => {
 					if (error) {
 						return reject(error);
 					}
@@ -236,51 +370,82 @@ const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 			.end(compressedBuffer);
 	});
 
-	let updateProfile = null;
+	const newImageUrl = cloudinaryResult.secure_url;
+	const newImagePublicId = cloudinaryResult.public_id;
 
-	if (currentUser.isEmployee) {
-		updateProfile = await prisma.employee.update({
-			where: {
-				userId: currentUser.id,
-			},
-			data: {
-				imageUrl: cloudinaryResult.secure_url,
-				imagePublicId: cloudinaryResult.public_id,
-			},
-			select: {
-				id: true,
-				imageUrl: true,
-				imagePublicId: true,
-			},
-		});
+	try {
+		let updateProfile: ProfileImageResponse;
 
-		if (currentUser.employee?.imagePublicId && currentUser.employee?.imageUrl) {
-			await cloudinary.uploader.destroy(currentUser.employee.imagePublicId);
+		if (currentUser.isEmployee) {
+			updateProfile = await prisma.employee.update({
+				where: {
+					userId: currentUser.id,
+				},
+				data: {
+					imageUrl: newImageUrl,
+					imagePublicId: newImagePublicId,
+				},
+				select: {
+					id: true,
+					imageUrl: true,
+					imagePublicId: true,
+				},
+			});
+		} else {
+			const deletionDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
+			updateProfile = await prisma.customer.upsert({
+				where: {
+					userId: currentUser.id,
+				},
+				create: {
+					userId: currentUser.id,
+					imageUrl: newImageUrl,
+					imagePublicId: newImagePublicId,
+					deletionDeadline,
+				},
+				update: {
+					imageUrl: newImageUrl,
+					imagePublicId: newImagePublicId,
+				},
+				select: {
+					id: true,
+					imageUrl: true,
+					imagePublicId: true,
+				},
+			});
 		}
-	} else {
-		updateProfile = await prisma.customer.update({
-			where: {
-				userId: currentUser.id,
-			},
-			data: {
-				imageUrl: cloudinaryResult.secure_url,
-				imagePublicId: cloudinaryResult.public_id,
-			},
-			select: {
-				id: true,
-				imageUrl: true,
-				imagePublicId: true,
-			},
-		});
 
-		if (currentUser.customer?.imagePublicId && currentUser.customer?.imageUrl) {
-			await cloudinary.uploader.destroy(currentUser.customer.imagePublicId);
+		// ====================================================
+		// Delete Old Cloudinary Image
+		// ====================================================
+		const oldImagePublicId = currentUser.isEmployee
+			? currentUser.employee?.imagePublicId
+			: currentUser.customer?.imagePublicId;
+
+		if (oldImagePublicId && oldImagePublicId !== newImagePublicId) {
+			try {
+				await cloudinary.uploader.destroy(oldImagePublicId);
+			} catch (error) {
+				console.error("Failed to delete old Cloudinary profile image:", error);
+			}
 		}
+
+		return updateProfile;
+	} catch (error) {
+		// ====================================================
+		// DB Update Failed
+		// Delete Newly Uploaded Cloudinary Image
+		// ====================================================
+		try {
+			await cloudinary.uploader.destroy(newImagePublicId);
+		} catch (cloudinaryError) {
+			console.error("Failed to cleanup new Cloudinary image:", cloudinaryError);
+		}
+
+		throw error;
 	}
-
-	return updateProfile;
 };
-
 // get all user by admin
 const getAllUsers = async (query: IQuery) => {
 	const limit = query.limit ? Number(query.limit) : 15;

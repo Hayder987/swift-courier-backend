@@ -482,10 +482,10 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 	}
 
 	const googleId = googleIdTokenPayload.sub;
-	const email = googleIdTokenPayload.email;
+	const email = googleIdTokenPayload.email.trim().toLowerCase();
 	const name = googleIdTokenPayload.name;
+	const imageUrl = googleIdTokenPayload.picture ?? null;
 
-	// 3. Find Existing Google User
 	const existingGoogleUser = await prisma.user.findFirst({
 		where: {
 			email,
@@ -514,16 +514,31 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 				throw new AppError(httpStatus.FORBIDDEN, "User Suspended Or Deleted. Please Contact Us");
 			}
 
+			const deletionDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
 			user = await prisma.user.update({
 				where: {
 					id: existingCredentialsUser.id,
 				},
 				data: {
 					googleId,
+
+					customer: {
+						upsert: {
+							create: {
+								deletionDeadline,
+								imageUrl,
+							},
+							update: {
+								imageUrl,
+							},
+						},
+					},
 				},
 			});
 		} else {
 			const deletionDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
 			user = await prisma.user.create({
 				data: {
 					name,
@@ -533,12 +548,15 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 					status: UserStatus.ACTIVE,
 					isEmailVerified: true,
 					authMethod: AuthMethod.GOOGLE,
-					customer: { create: { deletionDeadline } },
+
+					customer: {
+						create: {
+							deletionDeadline,
+							imageUrl,
+						},
+					},
 				},
 			});
-			// --------------------------------------------------------
-			// Registration Success Email
-			// --------------------------------------------------------
 
 			const templateData = {
 				name: user.name,
