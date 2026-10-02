@@ -19,6 +19,20 @@ const getAllAuditLog = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// delete audit log
+const deleteAuditLogById = catchAsync(async (req, res) => {
+	const { auditId } = req.params;
+
+	await superAdminService.deleteAuditLogById(auditId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Audit Log Deleted SuccessFully!",
+		data: null,
+	});
+});
+
 // create user
 const createEmployee = catchAsync(async (req: Request, res: Response) => {
 	const result = await superAdminService.createEmployeeUser(req.body);
@@ -50,4 +64,5 @@ export const superAdminController = {
 	getAllAuditLog,
 	createEmployee,
 	deleteAdmin,
+	deleteAuditLogById,
 };

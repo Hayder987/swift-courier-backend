@@ -31,7 +31,7 @@ const applyForCourier = async (
 	payload: ICourierProfilePayload,
 	resume: Express.Multer.File | null,
 	vehicleDocuments: Express.Multer.File[],
-	nationalidPic: Express.Multer.File[],
+	nationalIdPic: Express.Multer.File[],
 	userData: IReqUserPayload,
 ) => {
 	const user = await prisma.user.findUnique({
@@ -101,7 +101,7 @@ const applyForCourier = async (
 
 	// vechicleDocument upload
 	const nationalidPicUploadResult = await Promise.all(
-		nationalidPic.map((file) => {
+		nationalIdPic.map((file) => {
 			return new Promise<UploadApiResponse>((resolve, reject) => {
 				cloudinary.uploader
 					.upload_stream(
@@ -159,7 +159,7 @@ const applyForCourier = async (
 								url: file.secure_url,
 								publicId: file.public_id,
 							})),
-							nationalidPic: nationalidPicUploadResult.map((file) => ({
+							nationalIdPic: nationalidPicUploadResult.map((file) => ({
 								url: file.secure_url,
 								publicId: file.public_id,
 							})),
@@ -590,7 +590,7 @@ const getEmployeeById = async (empId: string) => {
 };
 
 // delete courier by admin
-const deleteEmployee = async (empId: string, userRole: UserRole) => {
+const deleteEmployee = async (empId: string, loginUser: IReqUserPayload) => {
 	const existingEmployee = await prisma.employee.findFirst({
 		where: {
 			id: empId,
@@ -610,7 +610,7 @@ const deleteEmployee = async (empId: string, userRole: UserRole) => {
 	}
 
 	// ADMIN cannot delete ADMIN or SUPER_ADMIN
-	if (userRole !== UserRole.SUPER_ADMIN) {
+	if (loginUser.role !== UserRole.SUPER_ADMIN) {
 		if (
 			existingEmployee.user.role === UserRole.ADMIN ||
 			existingEmployee.user.role === UserRole.SUPER_ADMIN
@@ -655,6 +655,20 @@ const deleteEmployee = async (empId: string, userRole: UserRole) => {
 				},
 			});
 		}
+
+		await tx.auditLog.create({
+			data: {
+				userId: loginUser.id,
+				action: AuditAction.DELETE,
+				resource: AuditResource.EMPLOYEE,
+				resourceId: existingEmployee.user.id,
+				description: "Employee Deleted",
+				metadata: {
+					deletedAt: new Date(),
+					userRole: existingEmployee.user.role,
+				},
+			},
+		});
 	});
 };
 

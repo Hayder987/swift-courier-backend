@@ -17,6 +17,8 @@ router.post(
 	superAdminController.createEmployee,
 );
 
+router.delete("/log/:auditId", auth(UserRole.SUPER_ADMIN), superAdminController.deleteAuditLogById);
+
 // delete admin
 router.patch("/:userId", auth(UserRole.SUPER_ADMIN), superAdminController.deleteAdmin);
 

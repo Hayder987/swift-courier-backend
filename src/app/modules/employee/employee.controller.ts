@@ -5,14 +5,14 @@ import { employeeService } from "./employee.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { employeeValidation } from "./employee.validation";
 import { AppError } from "../../utils/AppError";
-import { UserRole } from "../../../generated/prisma/enums";
+import type { IReqUserPayload } from "../../interfaces";
 
 // apply for courier
 const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 	const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 	const resume = files?.["resume"] ? files["resume"][0] : null;
 	const vehicleDocuments = files?.["vehicleDocuments"] || [];
-	const nationalidPic = files?.["nationalidPic"] || [];
+	const nationalIdPic = files?.["nationalIdPic"] || [];
 	const user = req.user!;
 
 	const zodValidationResult = employeeValidation.courierProfileZodSchema.safeParse(
@@ -29,7 +29,7 @@ const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 		payload,
 		resume,
 		vehicleDocuments,
-		nationalidPic,
+		nationalIdPic,
 		user,
 	);
 
@@ -104,9 +104,9 @@ const getEmployeeById = catchAsync(async (req: Request, res: Response) => {
 // delete courier by admin panel
 const deleteEmployee = catchAsync(async (req, res) => {
 	const { empId } = req.params;
-	const userRole = req.user?.role;
+	const LoginUser = req.user;
 
-	await employeeService.deleteEmployee(empId as string, userRole as UserRole);
+	await employeeService.deleteEmployee(empId as string, LoginUser as IReqUserPayload);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

@@ -114,6 +114,26 @@ const getAuditLogs = async (query: IQuery) => {
 	};
 };
 
+// Delete audit log by id
+const deleteAuditLogById = async (auditId: string) => {
+	const result = await prisma.auditLog.findUnique({
+		where: {
+			id: auditId,
+		},
+	});
+	if (!result) {
+		throw new AppError(httpStatus.NOT_FOUND, "This Audit Log Not Found!");
+	}
+
+	await prisma.auditLog.delete({
+		where: {
+			id: result.id,
+		},
+	});
+
+	return null;
+};
+
 // create employee User
 const createEmployeeUser = async (payload: ICreateEmployeeUserPayload) => {
 	const {
@@ -391,4 +411,5 @@ export const superAdminService = {
 	getAuditLogs,
 	createEmployeeUser,
 	deleteAdmin,
+	deleteAuditLogById,
 };
