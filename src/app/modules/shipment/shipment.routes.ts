@@ -46,4 +46,10 @@ router.get(
 
 router.get("/my-shipments", auth(UserRole.CUSTOMER), shipmentController.getMyShipments);
 
+router.get(
+	"/courier-shipments/:type",
+	auth(UserRole.COURIER),
+	shipmentController.getCourierShipments,
+);
+
 export const shipmentRoutes = router;

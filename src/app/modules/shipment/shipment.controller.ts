@@ -121,6 +121,25 @@ const getMyShipments = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// get my shipment Courier
+const getCourierShipments = catchAsync(async (req: Request, res: Response) => {
+	const { type } = req.params;
+	type paramType = "pickup" | "delivery";
+	const result = await shipmentServices.getMyCourierShipments(
+		req.user!,
+		req.query,
+		type as paramType,
+	);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "All Courier shipments retrieved successfully",
+		meta: result.meta,
+		data: result.data,
+	});
+});
+
 // export shipment controller
 export const shipmentController = {
 	createShipment,
@@ -130,4 +149,5 @@ export const shipmentController = {
 	getShipmentById,
 	getAllShipments,
 	getMyShipments,
+	getCourierShipments,
 };

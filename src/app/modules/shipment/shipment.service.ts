@@ -528,15 +528,15 @@ const updateShipmentByAdmin = async (
 					);
 				}
 
-				await tx.courier.update({
-					where: {
-						id: courierId,
-					},
+				// await tx.courier.update({
+				// 	where: {
+				// 		id: courierId,
+				// 	},
 
-					data: {
-						courierAvailability: CourierAvailability.BUSY,
-					},
-				});
+				// 	data: {
+				// 		courierAvailability: CourierAvailability.BUSY,
+				// 	},
+				// });
 			}
 
 			if (
@@ -551,15 +551,15 @@ const updateShipmentByAdmin = async (
 						);
 					}
 
-					await tx.courier.update({
-						where: {
-							id: courierId,
-						},
+					// await tx.courier.update({
+					// 	where: {
+					// 		id: courierId,
+					// 	},
 
-						data: {
-							courierAvailability: CourierAvailability.AVAILABLE,
-						},
-					});
+					// 	data: {
+					// 		courierAvailability: CourierAvailability.AVAILABLE,
+					// 	},
+					// });
 				}
 			}
 
@@ -630,10 +630,6 @@ const updateShipmentByCourier = async (
 
 			if (isExists.status === ShipmentStatus.CANCELLED) {
 				throw new AppError(httpStatus.BAD_REQUEST, "Shipment Already Cancelled!");
-			}
-
-			if (user.role === UserRole.CUSTOMER) {
-				throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission!");
 			}
 
 			if (!isExists.pickupCourierId && !isExists.deliveryCourierId) {
@@ -725,14 +721,6 @@ const updateShipmentByCourier = async (
 				payload.status === ShipmentStatus.DELIVERED ||
 				payload.status === ShipmentStatus.DELIVERY_FAILED
 			) {
-				if (!isExists.deliveryCourierId) {
-					throw new AppError(httpStatus.BAD_REQUEST, "This Shipment Has No Delivery Courier");
-				}
-
-				if (isExists.deliveryCourierId !== user.id) {
-					throw new AppError(httpStatus.FORBIDDEN, "This Shipment Is Not Assigned To You");
-				}
-
 				if (
 					isExists.status === ShipmentStatus.DELIVERED ||
 					isExists.status === ShipmentStatus.DELIVERY_FAILED
@@ -871,11 +859,6 @@ const assignCourierOnShipment = async (user: IReqUserPayload, shipmentId: string
 
 			const deliveryZoneRandomCourier = await getRandomAvailableCourier(isExists.deliveryZoneId);
 
-			console.log({
-				picupZoneRandomCourier,
-				deliveryZoneRandomCourier,
-			});
-
 			if (!picupZoneRandomCourier || !deliveryZoneRandomCourier) {
 				throw new AppError(httpStatus.NOT_FOUND, "No Available Courier Found!");
 			}
@@ -898,14 +881,14 @@ const assignCourierOnShipment = async (user: IReqUserPayload, shipmentId: string
 				},
 			});
 
-			await tx.courier.update({
-				where: {
-					id: picupZoneRandomCourier.courierId,
-				},
-				data: {
-					courierAvailability: CourierAvailability.BUSY,
-				},
-			});
+			// await tx.courier.update({
+			// 	where: {
+			// 		id: picupZoneRandomCourier.courierId,
+			// 	},
+			// 	data: {
+			// 		courierAvailability: CourierAvailability.BUSY,
+			// 	},
+			// });
 
 			await tx.notification.create({
 				data: {
@@ -1213,61 +1196,87 @@ const getMyShipments = async (user: IReqUserPayload, query: IQuery) => {
 		},
 	];
 
-	// Delivery zone filter
+	if (query.searchTerm) {
+		andConditions.push({
+			OR: [
+				{
+					trackingNumber: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					parcelName: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+			],
+		});
+	}
+
+	if (query.status) {
+		andConditions.push({
+			status: query.status as ShipmentStatus,
+		});
+	}
+
+	// Type filter
+	if (query.type) {
+		andConditions.push({
+			type: query.type,
+		});
+	}
+
+	if (query.dateFilter === "today") {
+		andConditions.push({
+			createdAt: {
+				gte: startOfDay(new Date()),
+				lte: endOfDay(new Date()),
+			},
+		});
+	}
+
+	if (query.dateFilter === "yesterday") {
+		const yesterday = subDays(new Date(), 1);
+
+		andConditions.push({
+			createdAt: {
+				gte: startOfDay(yesterday),
+				lte: endOfDay(yesterday),
+			},
+		});
+	}
+
+	if (query.dateFilter === "last_week") {
+		const lastWeek = subWeeks(new Date(), 1);
+
+		andConditions.push({
+			createdAt: {
+				gte: startOfWeek(lastWeek, { weekStartsOn: 1 }),
+				lte: endOfWeek(lastWeek, { weekStartsOn: 1 }),
+			},
+		});
+	}
+
+	if (query.pickupZoneId) {
+		andConditions.push({
+			pickupZoneId: query.pickupZoneId,
+		});
+	}
+
 	if (query.deliveryZoneId) {
 		andConditions.push({
 			deliveryZoneId: query.deliveryZoneId,
 		});
 	}
 
-	// Status filter
-	if (query.status) {
-		andConditions.push({
-			status: query.status,
-		});
-	}
-
-	// Date filter
-	if (query.dateFilter === "last_week") {
-		const lastWeek = subWeeks(new Date(), 1);
-
-		andConditions.push({
-			createdAt: {
-				gte: startOfWeek(lastWeek, {
-					weekStartsOn: 1,
-				}),
-				lte: endOfWeek(lastWeek, {
-					weekStartsOn: 1,
-				}),
-			},
-		});
-	}
-
-	if (query.dateFilter === "this_month") {
-		const today = new Date();
-
-		andConditions.push({
-			createdAt: {
-				gte: startOfMonth(today),
-				lte: endOfMonth(today),
-			},
-		});
-	}
-
-	if (query.dateFilter === "this_year") {
-		const today = new Date();
-
-		andConditions.push({
-			createdAt: {
-				gte: startOfYear(today),
-				lte: endOfYear(today),
-			},
-		});
-	}
-
-	const whereConditions: ShipmentWhereInput = {
-		AND: andConditions,
-	};
+	const whereConditions: ShipmentWhereInput =
+		andConditions.length > 0
+			? {
+					AND: andConditions,
+				}
+			: {};
 
 	const [shipments, total] = await Promise.all([
 		prisma.shipment.findMany({
@@ -1278,6 +1287,33 @@ const getMyShipments = async (user: IReqUserPayload, query: IQuery) => {
 				[sortBy]: sortOrder,
 			},
 			include: {
+				customer: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
+				pickupCourier: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
+				deliveryCourier: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
 				pickupZone: {
 					select: {
 						id: true,
@@ -1285,6 +1321,7 @@ const getMyShipments = async (user: IReqUserPayload, query: IQuery) => {
 						name: true,
 					},
 				},
+
 				deliveryZone: {
 					select: {
 						id: true,
@@ -1292,21 +1329,193 @@ const getMyShipments = async (user: IReqUserPayload, query: IQuery) => {
 						name: true,
 					},
 				},
-				pickupCourier: {
-					include: {
-						employee: {
-							include: {
-								user: {
-									select: {
-										id: true,
-										name: true,
-										email: true,
-										phone: true,
-									},
-								},
-							},
-						},
+
+				tracking: {
+					orderBy: {
+						createdAt: "desc",
 					},
+					take: 1,
+				},
+			},
+		}),
+
+		prisma.shipment.count({
+			where: whereConditions,
+		}),
+	]);
+
+	return {
+		meta: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
+		},
+		data: shipments,
+	};
+};
+
+// get courier own shipment
+const getMyCourierShipments = async (
+	user: IReqUserPayload,
+	query: IQuery,
+	type: "pickup" | "delivery",
+) => {
+	const limit = query.limit ? Number(query.limit) : 20;
+	const page = query.page ? Number(query.page) : 1;
+	const skip = (page - 1) * limit;
+	const sortBy = query.sortBy || "createdAt";
+	const sortOrder = query.sortOrder || "desc";
+
+	const andConditions: ShipmentWhereInput[] = [
+		type === "pickup"
+			? {
+					pickupCourierId: user.id,
+				}
+			: {
+					deliveryCourierId: user.id,
+				},
+	];
+
+	if (query.searchTerm) {
+		andConditions.push({
+			OR: [
+				{
+					trackingNumber: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					parcelName: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+			],
+		});
+	}
+
+	if (query.status) {
+		andConditions.push({
+			status: query.status as ShipmentStatus,
+		});
+	}
+
+	// Type filter
+	if (query.type) {
+		andConditions.push({
+			type: query.type,
+		});
+	}
+
+	if (query.dateFilter === "today") {
+		andConditions.push({
+			createdAt: {
+				gte: startOfDay(new Date()),
+				lte: endOfDay(new Date()),
+			},
+		});
+	}
+
+	if (query.dateFilter === "yesterday") {
+		const yesterday = subDays(new Date(), 1);
+
+		andConditions.push({
+			createdAt: {
+				gte: startOfDay(yesterday),
+				lte: endOfDay(yesterday),
+			},
+		});
+	}
+
+	if (query.dateFilter === "last_week") {
+		const lastWeek = subWeeks(new Date(), 1);
+
+		andConditions.push({
+			createdAt: {
+				gte: startOfWeek(lastWeek, { weekStartsOn: 1 }),
+				lte: endOfWeek(lastWeek, { weekStartsOn: 1 }),
+			},
+		});
+	}
+
+	if (query.pickupZoneId) {
+		andConditions.push({
+			pickupZoneId: query.pickupZoneId,
+		});
+	}
+
+	if (query.deliveryZoneId) {
+		andConditions.push({
+			deliveryZoneId: query.deliveryZoneId,
+		});
+	}
+
+	const whereConditions: ShipmentWhereInput =
+		andConditions.length > 0
+			? {
+					AND: andConditions,
+				}
+			: {};
+
+	const [shipments, total] = await Promise.all([
+		prisma.shipment.findMany({
+			where: whereConditions,
+			skip,
+			take: limit,
+			orderBy: {
+				[sortBy]: sortOrder,
+			},
+			include: {
+				customer: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
+				pickupCourier: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
+				deliveryCourier: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
+
+				pickupZone: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
+
+				deliveryZone: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
+
+				tracking: {
+					orderBy: {
+						createdAt: "desc",
+					},
+					take: 1,
 				},
 			},
 		}),
@@ -1336,4 +1545,5 @@ export const shipmentServices = {
 	getShipmentById,
 	getAllShipments,
 	getMyShipments,
+	getMyCourierShipments,
 };

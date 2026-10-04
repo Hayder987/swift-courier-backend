@@ -5,11 +5,7 @@ const createEmployeeZodSchema = z.object({
 		.string()
 		.trim()
 		.min(3, "Name must be at least 3 characters long")
-		.max(80, "Name must not exceed 80 characters")
-		.regex(
-			/^[A-Za-zÀ-ÖØ-öø-ÿ\s.'-]+$/,
-			"Name can only contain letters, spaces, dots, apostrophes, and hyphens",
-		),
+		.max(80, "Name must not exceed 80 characters"),
 
 	email: z
 		.string()
