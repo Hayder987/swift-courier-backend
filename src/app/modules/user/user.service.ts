@@ -507,8 +507,8 @@ const getAllUsers = async (query: IQuery) => {
 		where: {
 			AND: andConditions,
 		},
-		omit : {
-			password : true
+		omit: {
+			password: true,
 		},
 		take: limit,
 		skip,
@@ -545,9 +545,9 @@ const getUserById = async (userId: string, userRole: string) => {
 			id: userId,
 		},
 
-		omit : {
-			password : true
-		}
+		omit: {
+			password: true,
+		},
 	});
 
 	if (!user) {

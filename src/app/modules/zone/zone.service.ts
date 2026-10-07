@@ -11,7 +11,6 @@ interface IGetAllZonesQuery {
 	sortOrder?: "asc" | "desc";
 }
 
-
 // create zone by admin
 const createZone = async (payload: ICreateZonePayload) => {
 	const existingZone = await prisma.zone.findUnique({
@@ -68,7 +67,6 @@ const getAllZones = async (query: IGetAllZonesQuery) => {
 
 		prisma.zone.count(),
 	]);
-
 
 	return {
 		data,

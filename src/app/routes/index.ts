@@ -10,6 +10,7 @@ import { paymentRoutes } from "../modules/payment/payment.routes";
 import { payrollRoutes } from "../modules/payroll/payroll.route";
 import { notificationRoutes } from "../modules/notifications/notification.route";
 import { ContactRoutes } from "../modules/contact/contact.routes";
+import { dashboardRoutes } from "../modules/dashboard/dashboard.route";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/payments", paymentRoutes);
 router.use("/payroll", payrollRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/contacts", ContactRoutes);
+router.use("/dashboard", dashboardRoutes);
 
 export default router;

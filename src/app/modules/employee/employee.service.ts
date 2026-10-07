@@ -233,7 +233,6 @@ const approvedCourier = async (
 		throw new AppError(httpStatus.GONE, "This Applicant Already Suspended Or Deleted");
 	}
 
-
 	if (
 		payload.status !== ApplicationStatus.APPROVED &&
 		payload.status !== ApplicationStatus.REJECTED
@@ -328,7 +327,7 @@ const approvedCourier = async (
 					onboardingOldTime: onboardingAuditOldDeadline,
 					metadata: {
 						prevRole: AuditResource.CUSTOMER,
-						actionTime  : new Date()
+						actionTime: new Date(),
 					},
 				},
 			});
