@@ -66,7 +66,8 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: `All Users Retrieve Successfully`,
-		data: result,
+		data: result.data,
+		meta : result.meta
 	});
 });
 
@@ -90,13 +91,13 @@ const deleteUserById = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.params.id;
 	const user = req.user!;
 
-	const result = await userServices.deleteUserId(userId as string, user);
+	await userServices.deleteUserId(userId as string, user);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: `User Soft Deleted Successfully`,
-		data: result,
+		data: null,
 	});
 });
 

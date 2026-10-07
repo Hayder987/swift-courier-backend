@@ -16,13 +16,19 @@ const createZone = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllZones = catchAsync(async (req: Request, res: Response) => {
-	const result = await zoneServices.getAllZones();
+	const result = await zoneServices.getAllZones({
+		page: Number(req.query.page) || 1,
+		limit: Number(req.query.limit) || 10,
+		sortBy: req.query.sortBy as string | undefined,
+		sortOrder: req.query.sortOrder as "asc" | "desc" | undefined,
+	});
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "Zones retrieved successfully",
-		data: result,
+		data: result.data,
+		meta: result.meta,
 	});
 });
 

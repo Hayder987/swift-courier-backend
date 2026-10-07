@@ -45,9 +45,9 @@ const applyForCourier = catchAsync(async (req: Request, res: Response) => {
 const approvedCourier = catchAsync(async (req: Request, res: Response) => {
 	const user = req.user!;
 	const payload = req.body;
-	const empId = req.params.id;
+	const employeeId = req.params.id;
 
-	const result = await employeeService.approvedCourier(payload, user, empId as string);
+	const result = await employeeService.approvedCourier(payload, user, employeeId as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

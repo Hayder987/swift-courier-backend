@@ -192,11 +192,11 @@ const applyForCourier = async (
 const approvedCourier = async (
 	payload: IApprovedCourierReqPayload,
 	user: IReqUserPayload,
-	empId: string,
+	employeeId: string,
 ) => {
 	const isApplicantEmployee = await prisma.employee.findUnique({
 		where: {
-			id: empId,
+			id: employeeId,
 		},
 		include: {
 			user: {
@@ -233,9 +233,6 @@ const approvedCourier = async (
 		throw new AppError(httpStatus.GONE, "This Applicant Already Suspended Or Deleted");
 	}
 
-	if (user.role !== UserRole.ADMIN) {
-		throw new AppError(httpStatus.FORBIDDEN, "You Have No Permission To Update This");
-	}
 
 	if (
 		payload.status !== ApplicationStatus.APPROVED &&
@@ -247,96 +244,105 @@ const approvedCourier = async (
 	const employeeCode =
 		payload.status === ApplicationStatus.APPROVED ? await generateEmployeeCode() : null;
 
-	const result = await prisma.$transaction(async (tx) => {
-		const employee = await tx.employee.update({
-			where: {
-				id: empId,
-			},
-			data:
-				payload.status === ApplicationStatus.REJECTED
-					? {
-							onboardingTime: onboardingCourierDeadline,
-							employmentStatus: EmploymentStatus.TERMINATED,
-						}
-					: {
-							onboardingTime: null,
-							employeeCode,
-							employmentStatus: EmploymentStatus.ACTIVE,
-							joinAt: new Date(),
+	const result = await prisma.$transaction(
+		async (tx) => {
+			const employee = await tx.employee.update({
+				where: {
+					id: employeeId,
+				},
+				data:
+					payload.status === ApplicationStatus.REJECTED
+						? {
+								onboardingTime: onboardingCourierDeadline,
+								employmentStatus: EmploymentStatus.TERMINATED,
+							}
+						: {
+								onboardingTime: null,
+								employeeCode,
+								employmentStatus: EmploymentStatus.ACTIVE,
+								joinAt: new Date(),
+							},
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
 						},
-			include: {
-				user: {
-					select: {
-						id: true,
-						name: true,
-						email: true,
 					},
 				},
-			},
-		});
+			});
 
-		await tx.courier.update({
-			where: {
-				employeeId: empId,
-			},
-			data: {
-				applicationStatus: payload.status,
-			},
-		});
-
-		if (payload.status === ApplicationStatus.APPROVED) {
-			await tx.user.update({
+			await tx.courier.update({
 				where: {
-					id: employee.user.id,
+					employeeId: employeeId,
 				},
 				data: {
-					role: UserRole.COURIER,
-					isEmployee: true,
+					applicationStatus: payload.status,
 				},
 			});
-		}
 
-		const notification = await tx.notification.create({
-			data: {
-				title:
-					payload.status === ApplicationStatus.APPROVED
-						? "Courier Application Approved"
-						: "Courier Application Rejected",
+			if (payload.status === ApplicationStatus.APPROVED) {
+				await tx.user.update({
+					where: {
+						id: employee.user.id,
+					},
+					data: {
+						role: UserRole.COURIER,
+						isEmployee: true,
+					},
+				});
+			}
 
-				message:
-					payload.status === ApplicationStatus.APPROVED
-						? "Your application for the Courier role has been approved."
-						: "Your application for the Courier role has been rejected.",
+			const notification = await tx.notification.create({
+				data: {
+					title:
+						payload.status === ApplicationStatus.APPROVED
+							? "Courier Application Approved"
+							: "Courier Application Rejected",
 
-				type: NotificationType.APPLICATION,
-				userId: employee.user.id,
-				notificationDeadline,
-			},
-		});
+					message:
+						payload.status === ApplicationStatus.APPROVED
+							? "Your application for the Courier role has been approved."
+							: "Your application for the Courier role has been rejected.",
 
-		await tx.auditLog.create({
-			data: {
-				userId: user.id,
-				action:
-					payload.status === ApplicationStatus.APPROVED ? AuditAction.APPROVE : AuditAction.REJECT,
-				resource:
-					payload.status === ApplicationStatus.APPROVED
-						? AuditResource.COURIER
-						: AuditResource.CUSTOMER,
-				resourceId: isApplicantEmployee.user.id,
-				description: payload.status,
-				onboardingOldTime: onboardingAuditOldDeadline,
-				metadata: {
-					prevRole: AuditResource.CUSTOMER,
+					type: NotificationType.APPLICATION,
+					userId: employee.user.id,
+					notificationDeadline,
 				},
-			},
-		});
+			});
 
-		return {
-			employee,
-			notification,
-		};
-	});
+			await tx.auditLog.create({
+				data: {
+					userId: user.id,
+					action:
+						payload.status === ApplicationStatus.APPROVED
+							? AuditAction.APPROVE
+							: AuditAction.REJECT,
+					resource:
+						payload.status === ApplicationStatus.APPROVED
+							? AuditResource.COURIER
+							: AuditResource.CUSTOMER,
+					resourceId: isApplicantEmployee.user.id,
+					description: payload.status,
+					onboardingOldTime: onboardingAuditOldDeadline,
+					metadata: {
+						prevRole: AuditResource.CUSTOMER,
+						actionTime  : new Date()
+					},
+				},
+			});
+
+			return {
+				employee,
+				notification,
+			};
+		},
+		{
+			maxWait: 15000,
+			timeout: 25000,
+		},
+	);
 
 	// Email AFTER transaction
 	await sendTemplateEmail({

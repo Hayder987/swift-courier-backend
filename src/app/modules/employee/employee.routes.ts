@@ -57,7 +57,7 @@ router.get(
 	employeeController.getEmployeeById,
 );
 
-router.delete(
+router.patch(
 	"/emp/:empId",
 	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
 	employeeController.deleteEmployee,

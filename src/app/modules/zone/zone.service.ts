@@ -4,6 +4,14 @@ import { geocodeAddress } from "../../utils/zone-utils/geoapify";
 import { generateZoneBoundary } from "../../utils/zone-utils/zoneBoundary";
 import type { ICreateZonePayload, IUpdateZonePayload } from "./zone.interface";
 
+interface IGetAllZonesQuery {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
+}
+
+
 // create zone by admin
 const createZone = async (payload: ICreateZonePayload) => {
 	const existingZone = await prisma.zone.findUnique({
@@ -41,12 +49,36 @@ const createZone = async (payload: ICreateZonePayload) => {
 };
 
 // get all zone public
-const getAllZones = async () => {
-	return prisma.zone.findMany({
-		orderBy: {
-			createdAt: "desc",
+const getAllZones = async (query: IGetAllZonesQuery) => {
+	const page = query.page ?? 1;
+	const limit = query.limit ?? 10;
+	const skip = (page - 1) * limit;
+
+	const sortBy = query.sortBy ?? "createdAt";
+	const sortOrder = query.sortOrder ?? "desc";
+
+	const [data, total] = await Promise.all([
+		prisma.zone.findMany({
+			skip,
+			take: limit,
+			orderBy: {
+				[sortBy]: sortOrder,
+			} as Prisma.ZoneOrderByWithRelationInput,
+		}),
+
+		prisma.zone.count(),
+	]);
+
+
+	return {
+		data,
+		meta: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
 		},
-	});
+	};
 };
 
 // get zone by id

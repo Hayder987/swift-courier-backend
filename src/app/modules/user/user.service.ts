@@ -448,7 +448,7 @@ const updateProfileImage = async (buffer: Buffer, user: IReqUserPayload) => {
 };
 // get all user by admin
 const getAllUsers = async (query: IQuery) => {
-	const limit = query.limit ? Number(query.limit) : 15;
+	const limit = query.limit ? Number(query.limit) : 10;
 	const page = query.page ? Number(query.page) : 1;
 	const skip = (page - 1) * limit;
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
@@ -493,6 +493,12 @@ const getAllUsers = async (query: IQuery) => {
 						mode: "insensitive",
 					},
 				},
+				{
+					phone: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
 			],
 		});
 	}
@@ -500,6 +506,9 @@ const getAllUsers = async (query: IQuery) => {
 	const users = await prisma.user.findMany({
 		where: {
 			AND: andConditions,
+		},
+		omit : {
+			password : true
 		},
 		take: limit,
 		skip,
@@ -536,21 +545,9 @@ const getUserById = async (userId: string, userRole: string) => {
 			id: userId,
 		},
 
-		select: {
-			id: true,
-			name: true,
-			email: true,
-			phone: true,
-			authMethod: true,
-			isEmailVerified: true,
-			isEmployee: true,
-			role: true,
-			status: true,
-			isDeleted: true,
-			lastLoginAt: true,
-			createdAt: true,
-			updatedAt: true,
-		},
+		omit : {
+			password : true
+		}
 	});
 
 	if (!user) {
@@ -743,7 +740,7 @@ const deleteUserId = async (userId: string, userReq: IReqUserPayload) => {
 		data: templateData,
 	});
 
-	return transactionResult;
+	return null;
 };
 
 // Suspense or Active user by id
