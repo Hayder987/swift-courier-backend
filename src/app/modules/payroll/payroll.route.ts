@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
 	"/generate",
-	auth(UserRole.ADMIN),
+	auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
 	validateRequest(payrollValidation.generatePayrollZodSchema),
 	payrollController.generatePayroll,
 );

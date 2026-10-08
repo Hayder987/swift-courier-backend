@@ -33,13 +33,13 @@ const mySalaryZodSchema = z.object({
 
 const paidSalaryZodSchema = z.object({
 	month: z.coerce.number().int().min(1).max(12).optional(),
-
 	year: z.coerce
 		.number()
 		.int()
 		.min(2020)
 		.max(currentYear + 1)
 		.optional(),
+	status: z.enum(["PENDING", "PAID"]),
 
 	page: z.coerce.number().int().positive().optional().default(1),
 

@@ -272,11 +272,7 @@ const getPaidPayrolls = async (query: IPaidSalaryQuery) => {
 	const limit = query.limit ? Number(query.limit) : 20;
 	const skip = (page - 1) * limit;
 
-	const andConditions: PayrollWhereInput[] = [
-		{
-			status: PayrollStatus.PAID,
-		},
-	];
+	const andConditions: PayrollWhereInput[] = [];
 
 	if (month) {
 		andConditions.push({
@@ -290,6 +286,12 @@ const getPaidPayrolls = async (query: IPaidSalaryQuery) => {
 		});
 	}
 
+	if (query.status) {
+		andConditions.push({
+			status: query.status,
+		});
+	}
+
 	const whereConditions: Prisma.PayrollWhereInput = {
 		AND: andConditions,
 	};
@@ -300,7 +302,12 @@ const getPaidPayrolls = async (query: IPaidSalaryQuery) => {
 
 			include: {
 				employee: {
-					include: {
+					select: {
+						id: true,
+						userId: true,
+						employeeCode: true,
+						imageUrl: true,
+						joinAt: true,
 						user: {
 							select: {
 								id: true,

@@ -17,6 +17,7 @@ export interface IMySalaryQuery {
 export interface IPaidSalaryQuery {
 	month?: number;
 	year?: number;
+	status?: "PENDING" | "PAID";
 	page?: number;
 	limit?: number;
 }
