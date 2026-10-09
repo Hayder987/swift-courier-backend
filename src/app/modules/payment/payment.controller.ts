@@ -45,7 +45,7 @@ const getAllPayment = catchAsync(async (req: Request, res: Response) => {
 		statusCode: 200,
 		message: "All Payment Retrieve SuccessFully!",
 		data: result.data,
-		meta : result.meta,
+		meta: result.meta,
 	});
 });
 
@@ -55,4 +55,5 @@ export const paymentController = {
 	handleWebhook,
 	getAllPayment,
 };
+
 
