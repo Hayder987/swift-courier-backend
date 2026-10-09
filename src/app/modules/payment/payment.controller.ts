@@ -44,7 +44,8 @@ const getAllPayment = catchAsync(async (req: Request, res: Response) => {
 		success: true,
 		statusCode: 200,
 		message: "All Payment Retrieve SuccessFully!",
-		data: result,
+		data: result.data,
+		meta : result.meta,
 	});
 });
 
