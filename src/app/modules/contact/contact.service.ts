@@ -39,7 +39,7 @@ const createContact = async (payload: IContactPayload) => {
 // get all contact
 const getAllContacts = async (query: IQuery) => {
 	const page = query.page ? Number(query.page) : 1;
-	const limit = query.limit ? Number(query.limit) : 20;
+	const limit = query.limit ? Number(query.limit) : 12;
 	const skip = (page - 1) * limit;
 	const sortBy = query.sortBy || "createdAt";
 	const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
