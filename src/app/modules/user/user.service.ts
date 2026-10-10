@@ -454,7 +454,13 @@ const getAllUsers = async (query: IQuery) => {
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
-	const andConditions: UserWhereInput[] = [];
+	const andConditions: UserWhereInput[] = [
+		{
+			email: {
+				notIn: ["superadmin@swift.com", "testadmin@swift.com", "testcourierdhaka@swift.com"],
+			},
+		},
+	];
 
 	if (query.status) {
 		andConditions.push({ status: query.status });

@@ -450,7 +450,15 @@ const getAllEmployees = async (query: IQuery) => {
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
-	const andConditions: EmployeeWhereInput[] = [];
+	const andConditions: EmployeeWhereInput[] = [
+		{
+			user: {
+				email: {
+					notIn: ["superadmin@swift.com", "testadmin@swift.com", "testcourierdhaka@swift.com"],
+				},
+			},
+		},
+	];
 
 	if (query.employeeStatus) {
 		andConditions.push({
