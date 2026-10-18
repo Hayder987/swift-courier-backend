@@ -1536,6 +1536,39 @@ const getMyCourierShipments = async (
 	};
 };
 
+// PUBLIC shipment tracking by tracking number (sanitized — no PII)
+const getPublicShipmentByTrackingNumber = async (trackingNumber: string) => {
+	const shipment = await prisma.shipment.findUnique({
+		where: { trackingNumber },
+		select: {
+			trackingNumber: true,
+			parcelName: true,
+			status: true,
+			parcelWeightGM: true,
+			deliveryFee: true,
+			deliveryDistance: true,
+			createdAt: true,
+			updatedAt: true,
+			pickupZone: { select: { name: true, code: true } },
+			deliveryZone: { select: { name: true, code: true } },
+			tracking: {
+				orderBy: { createdAt: "desc" },
+				select: {
+					status: true,
+					note: true,
+					createdAt: true,
+				},
+			},
+		},
+	});
+
+	if (!shipment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Shipment not found for this tracking number.");
+	}
+
+	return shipment;
+};
+
 // export shipment services
 export const shipmentServices = {
 	createShipment,
@@ -1546,4 +1579,5 @@ export const shipmentServices = {
 	getAllShipments,
 	getMyShipments,
 	getMyCourierShipments,
+	getPublicShipmentByTrackingNumber,
 };

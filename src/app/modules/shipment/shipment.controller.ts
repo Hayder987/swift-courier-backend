@@ -140,6 +140,19 @@ const getCourierShipments = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getPublicShipmentByTrackingNumber = catchAsync(async (req: Request, res: Response) => {
+	const { trackingNumber } = req.params;
+
+	const result = await shipmentServices.getPublicShipmentByTrackingNumber(trackingNumber as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Shipment tracking information retrieved successfully",
+		data: result,
+	});
+});
+
 // export shipment controller
 export const shipmentController = {
 	createShipment,
@@ -150,4 +163,5 @@ export const shipmentController = {
 	getAllShipments,
 	getMyShipments,
 	getCourierShipments,
+	getPublicShipmentByTrackingNumber,
 };

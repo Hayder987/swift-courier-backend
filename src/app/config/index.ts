@@ -57,4 +57,7 @@ export default {
 
 	stripe_secret_key: process.env.STRIPE_SECRET_KEY!,
 	stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!,
+
+	groq_api_key: process.env.GROQ_API_KEY!,
+	groq_model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile"!,
 };

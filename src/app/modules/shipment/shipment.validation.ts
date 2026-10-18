@@ -45,6 +45,20 @@ const shipmentStatusCourierZodSchema = z.object({
 	note: z.string().trim().min(1, "Note is required").max(500, "Note cannot exceed 500 characters"),
 });
 
+export const shipmentTrackingParamValidationSchema = z.object({
+	params: z.object({
+		trackingNumber: z
+			.string()
+			.trim()
+			.min(4, "Tracking number is too short")
+			.max(64, "Tracking number is too long"),
+	}),
+});
+
+export type IShipmentTrackingParam = z.infer<
+	typeof shipmentTrackingParamValidationSchema
+>["params"];
+
 export const shipmentValidation = {
 	createShipmentZodSchema,
 	shipmentStatusAdminZodSchema,

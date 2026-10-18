@@ -4,7 +4,7 @@ import { auth } from "../../middleware/auth";
 import { UserRole } from "../../../generated/prisma/enums";
 import { upload } from "../../lib/multer";
 import { validateRequest } from "../../middleware/validateRequest";
-import { shipmentValidation } from "./shipment.validation";
+import { shipmentTrackingParamValidationSchema, shipmentValidation } from "./shipment.validation";
 
 const router = Router();
 
@@ -50,6 +50,12 @@ router.get(
 	"/courier-shipments/:type",
 	auth(UserRole.COURIER),
 	shipmentController.getCourierShipments,
+);
+
+router.get(
+	"/track/:trackingNumber",
+	validateRequest(shipmentTrackingParamValidationSchema),
+	shipmentController.getPublicShipmentByTrackingNumber,
 );
 
 export const shipmentRoutes = router;
